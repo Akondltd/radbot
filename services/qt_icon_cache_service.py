@@ -1,6 +1,4 @@
 import time
-import sys
-import os
 import io
 import requests
 from pathlib import Path
@@ -9,16 +7,13 @@ from PySide6.QtCore import QTimer, QThreadPool, QBuffer, QIODevice
 from PySide6.QtGui import QImage
 from PySide6.QtCore import QByteArray
 
-# Add project root to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from config.database_config import get_db_connection
 from services.qt_base_service import QtBaseService, Worker
 from utils.api_tracker import api_tracker
 
-# Constants
-THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60
-NINETY_DAYS_IN_SECONDS = 90 * 24 * 60 * 60
+# Constants — recheck intervals for icon freshness
+NINETY_DAYS_IN_SECONDS = 90 * 24 * 60 * 60       # Valid icons: recheck every ~3 months
+ONE_EIGHTY_DAYS_IN_SECONDS = 180 * 24 * 60 * 60  # Placeholder icons: retry every ~6 months
 from config.paths import PACKAGE_ROOT
 DEFAULT_ICON_PATH = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
 PLACEHOLDER_DB_PATH = 'images/default_token_icon.png'
@@ -169,22 +164,22 @@ class QtIconCacheService(QtBaseService):
         Fetches tokens from the DB that need their icon checked.
         This includes:
         1. Tokens with no local icon path yet.
-        2. Tokens with a valid icon, not checked in the last 30 days.
-        3. Tokens with a placeholder icon, not checked in the last 90 days.
+        2. Tokens with a valid icon, not checked in the last 90 days (~3 months).
+        3. Tokens with a placeholder icon, not checked in the last 180 days (~6 months).
         """
         conn = get_db_connection()
         cursor = conn.cursor()
         now = int(time.time())
-        thirty_days_ago = now - THIRTY_DAYS_IN_SECONDS
         ninety_days_ago = now - NINETY_DAYS_IN_SECONDS
+        one_eighty_days_ago = now - ONE_EIGHTY_DAYS_IN_SECONDS
 
         query = f"""
             SELECT rowid, address, icon_url FROM tokens
             WHERE icon_url IS NOT NULL AND icon_url != ''
             AND (
                 icon_local_path IS NULL OR icon_local_path = '' OR
-                (icon_local_path != '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {thirty_days_ago}) OR
-                (icon_local_path = '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {ninety_days_ago})
+                (icon_local_path != '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {ninety_days_ago}) OR
+                (icon_local_path = '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {one_eighty_days_ago})
             )
         """
         cursor.execute(query)

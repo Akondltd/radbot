@@ -18,9 +18,9 @@ class DataSource:
         """
         self.api_base_url = "https://api.ociswap.com"
         if db_path is None:
-            # Build an absolute path to the database file, assuming it's in a 'data' subdirectory.
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            self.db_path = os.path.join(script_dir, 'data', 'radbot.db')
+            from config.paths import DATABASE_PATH, ensure_dirs
+            ensure_dirs()
+            self.db_path = str(DATABASE_PATH)
         else:
             self.db_path = db_path
         self._initialize_db()

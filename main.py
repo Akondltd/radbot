@@ -62,7 +62,8 @@ def main():
 
         # Load and apply the global dark theme stylesheet
         try:
-            style_file = pathlib.Path(__file__).parent / "gui" / "styling" / "dark_theme.qss"
+            from config.paths import PACKAGE_ROOT
+            style_file = PACKAGE_ROOT / "gui" / "styling" / "dark_theme.qss"
             with open(style_file, "r") as f:
                 app.setStyleSheet(f.read())
         except FileNotFoundError:

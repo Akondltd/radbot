@@ -367,6 +367,18 @@ class QtTokenUpdaterService(QtBaseService):
                     
                     if success:
                         updated_count += 1
+                        # Stamp icon_last_checked_timestamp if we cached an icon
+                        if token.get('iconLocalPath'):
+                            try:
+                                import time as _time
+                                cursor = conn.cursor()
+                                cursor.execute(
+                                    "UPDATE tokens SET icon_last_checked_timestamp = ? WHERE address = ?",
+                                    (int(_time.time()), token.get('address'))
+                                )
+                                conn.commit()
+                            except Exception as ts_err:
+                                self.logger.debug(f"Could not stamp icon timestamp: {ts_err}")
                     else:
                         self.logger.warning(f"Failed to update token: {token.get('address')} ({token.get('symbol')})")
                         
