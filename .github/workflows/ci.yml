@@ -1,0 +1,76 @@
+# This workflow runs on every push and pull request:
+#   1. Tests that all imports work on Python 3.11, 3.12, 3.13
+#   2. On a tagged release (e.g. v1.0.0), builds and publishes to PyPI
+
+name: CI & Publish
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Job 1: Test across Python versions ──
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Verify imports
+        run: |
+          python -c "from version import __app_name__, __version__, __subtitle__; print(f'{__app_name__} v{__version__}')"
+          python -c "from config.paths import PACKAGE_ROOT, USER_DATA_DIR, DATABASE_PATH, LOGS_DIR; print('Paths OK')"
+          python -c "from core.wallet import RadixWallet; print('Core OK')"
+          python -c "from database.database import Database; print('Database OK')"
+          python -c "from services.data_source import DataSource; print('Services OK')"
+          python -c "from config.fee_config import get_fee_percentage; print('Fee config OK')"
+
+  # ── Job 2: Build and publish to PyPI (only on version tags) ──
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      id-token: write  # Required for trusted publishing
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
