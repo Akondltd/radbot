@@ -1,0 +1,43 @@
+{
+    "AI_STRATEGY": {
+        "RSI": {
+            "period": 14,
+            "buy_threshold": 20,
+            "sell_threshold": 80
+        },
+        "MACD": {
+            "fast_period": 15,
+            "slow_period": 30,
+            "signal_period": 10,
+            "low_threshold": 15,
+            "high_threshold": 30
+        },
+        "BB": {
+            "period": 20,
+            "std_dev_multiplier": 2.5
+        },
+        "MA_CROSS": {
+            "short_period": 12,
+            "long_period": 26
+        }
+    },
+    "RSI": {
+        "period": 14,
+        "buy_threshold": 20,
+        "sell_threshold": 80
+    },
+    "MACD": {
+        "fast_period": 15,
+        "slow_period": 30,
+        "signal_period": 10
+    },
+    "BB": {
+        "period": 20,
+        "std_dev_multiplier": 2.5
+    },
+    "MA_CROSS": {
+        "short_period": 12,
+        "long_period": 26
+    },
+    "ML_ENABLED": true
+}

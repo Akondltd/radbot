@@ -1,0 +1,12 @@
+{
+  "critical": {
+    "cryptography": "1f882d355f7d58f4",
+    "bip_utils": "2eb331b4b4b3ae04",
+    "mnemonic": "bfd52a1fbdd20a7d"
+  },
+  "important": {
+    "requests": "102ca4c85ecaab25",
+    "pandas": "f6a182fa9c597e45",
+    "PySide6": "8f66c517f7e2c05a"
+  }
+}

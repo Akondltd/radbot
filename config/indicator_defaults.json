@@ -1,0 +1,52 @@
+{
+  "AI_STRATEGY": {
+    "RSI": {
+      "period": 14,
+      "buy_threshold": 20,
+      "sell_threshold": 80,
+      "description": "RSI settings for AI Strategy"
+    },
+    "MACD": {
+      "fast_period": 15,
+      "slow_period": 30,
+      "signal_period": 10,
+      "low_threshold": 15,
+      "high_threshold": 30,
+      "description": "MACD settings for AI Strategy"
+    },
+    "BB": {
+      "period": 20,
+      "std_dev_multiplier": 2.5,
+      "description": "Bollinger Bands settings for AI Strategy"
+    },
+    "MA_CROSS": {
+      "short_period": 12,
+      "long_period": 26,
+      "description": "Moving Average Crossover settings for AI Strategy"
+    }
+  },
+  "RSI": {
+    "period": 14,
+    "buy_threshold": 20,
+    "sell_threshold": 80,
+    "description": "RSI settings for individual indicator"
+  },
+  "MACD": {
+    "fast_period": 15,
+    "slow_period": 30,
+    "signal_period": 10,
+    "description": "MACD settings for individual indicator"
+  },
+  "BB": {
+    "period": 20,
+    "std_dev_multiplier": 2.5,
+    "description": "Bollinger Bands settings for individual indicator"
+  },
+  "MA_CROSS": {
+    "short_period": 12,
+    "long_period": 26,
+    "description": "Moving Average Crossover settings for individual indicator"
+  },
+  "ML_ENABLED": true,
+  "description": "Main indicator settings"
+}

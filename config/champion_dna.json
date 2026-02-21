@@ -1,0 +1,27 @@
+{
+    "rsi_params": {
+        "period": 14,
+        "buy_threshold": 30,
+        "sell_threshold": 70
+    },
+    "macd_params": {
+        "fast_period": 12,
+        "slow_period": 26,
+        "signal_period": 9
+    },
+    "bb_params": {
+        "period": 20,
+        "std_dev_multiplier": 2.0
+    },
+    "mac_params": {
+        "short_window": 10,
+        "long_window": 50
+    },
+    "weights": {
+        "rsi": 1.0,
+        "macd": 1.0,
+        "bb": 1.0,
+        "mac": 1.0
+    },
+    "smoothing_period": 5
+}

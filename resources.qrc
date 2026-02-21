@@ -1,0 +1,24 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/greenLED.png</file>
+    <file>images/redLED.png</file>
+    <file>images/error_icon.png</file>
+    <file>images/success_icon.png</file>
+    <file>images/loading_spinner.gif</file>
+    <file>images/default_token_icon.png</file>
+    <file>images/RadbotTick16.png</file>
+    <file>images/RadbotTick32.png</file>
+    <file>images/RadbotTick48.png</file>
+    <file>images/RadbotTick64.png</file>
+    <file>images/RadbotTick128.png</file>
+    <file>images/GreenNod.gif</file>
+    <file>images/RadbotTick256.png</file>
+    <file>images/QRIcon.png</file>
+    <file>images/QRIconLarge.png</file>
+    <file>images/trans_background25.png</file>
+    <file>images/AkondLogo-50.png</file>
+    <file>images/AkondLogoName-45.png</file>
+    <file>images/left.png</file>
+    <file>images/right.png</file>
+  </qresource>
+</RCC>

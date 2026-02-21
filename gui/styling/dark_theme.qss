@@ -1,0 +1,441 @@
+/* ========================================
+   Radbot Dark Theme
+   ======================================== */
+
+QWidget {
+    background-color: #0f172a;
+    color: #ffffff;
+    border: 0px;
+}
+
+QTabWidget::pane {
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    background-color: #1e293b;
+}
+
+QTabBar::tab {
+    background-color: #0a0e27;
+    color: #94a3b8;
+    border: 1px solid #1e293b;
+    border-bottom: none;
+    padding: 8px 16px;
+    margin-right: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+QTabBar::tab:selected {
+    background-color: #0f172a;
+    color: #00D4FF;
+    border-bottom: 1px solid #0f172a;
+}
+
+QTabBar::tab:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+QGroupBox {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    margin-top: 5px;
+    padding: 2px;
+}
+
+QGraphicsView {
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    background-color: #0a0e27;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 2px;
+}
+
+QLineEdit, QTextEdit {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 1px 2px;
+}
+
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #0D6EFD;
+    background-color: #0f172a;
+}
+
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                stop:0 #0D6EFD, stop:1 #259eff);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 2px 2px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                stop:0 #2d7efb, stop:1 #20dcff);
+}
+
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                stop:0 #0a5dd6, stop:1 #00b8dd);
+}
+
+QCheckBox, QRadioButton {
+    spacing: 2px;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #1e293b;
+    border-radius: 3px;
+    background-color: #0a0e27;
+}
+
+QCheckBox {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    background-color: #0a0e27;
+}
+
+QRadioButton::indicator {
+    border-radius: 8px;
+}
+
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background-color: #0D6EFD;
+    border: 1px solid #0D6EFD;
+}
+
+QCheckBox::indicator:unchecked:hover, QRadioButton::indicator:unchecked:hover {
+    border: 1px solid #00D4FF;
+}
+
+/* Remove all focus outlines */
+QCheckBox:focus, QRadioButton:focus, QPushButton:focus, QLineEdit:focus, QTextEdit:focus, QTabBar:focus, QTabWidget:focus {
+    outline: none;
+}
+
+QScrollArea {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 2px;
+}
+
+QScrollArea QWidget {
+    background-color: #0a0e27;
+    margin: 0 0 0 0;    
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #0a0e27;
+    width: 12px;
+    margin: 16px 0 16px 0;
+}
+
+QScrollBar::handle:vertical {
+    background: #1e293b;
+    min-height: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #0D6EFD;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 15px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QMessageBox {
+    background-color: #0f172a;
+    color: #ffffff;
+}
+
+QFrame {
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    background-color: #0a0e27;
+}
+
+QLabel {
+    border: none;
+    color: #ffffff;
+}
+
+/* Specific rule for the QR code's container to ensure transparency */
+#qrCodeContainer {
+    background-color: transparent;
+}
+
+/* Duplicate scroll area styling removed - already defined above */
+
+QTreeView {
+    headerVisible: false;
+    border: 1px solid #1e293b;
+    background-color: #0a0e27;
+    color: #ffffff;
+}
+
+QTabWidget {
+    padding: 5px;
+    border: none;
+}
+
+/* Table styling for trade history and other tables */
+QTableWidget {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    gridline-color: #1e293b;
+    selection-background-color: #0D6EFD;
+    selection-color: #ffffff;
+    alternate-background-color: #0f172a;
+}
+
+QTableWidget::item {
+    padding: 1px;
+    border: none;
+}
+
+QTableWidget::item:selected {
+    background-color: #0D6EFD;
+    color: #ffffff;
+}
+
+QHeaderView::section {
+    background-color: #0a0e27;
+    color: #00D4FF;
+    border: 1px solid #1e293b;
+    border-radius: 0px;
+    padding: 8px;
+    font-weight: 600;
+}
+
+QHeaderView::section:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+/* ========================================
+   DIALOGS & MODALS
+   ======================================== */
+
+QDialog {
+    background-color: #0f172a;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+}
+
+QDialog QFrame#header_frame, QDialog QFrame#footer_frame {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+}
+
+QDialog QPushButton#cancel_button {
+    background: #1e293b;
+    border: 1px solid #1e293b;
+}
+
+QDialog QPushButton#cancel_button:hover {
+    background: #334155;
+}
+
+/* ========================================
+   CHART WIDGETS & CANVAS
+   ======================================== */
+
+/* Dashboard chart widgets */
+ProfitLossChart, TokenDistributionChart, VolumeChart, TradeStatistics {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+}
+
+/* Trade chart widget in active trades */
+TradeChartWidget {
+    background-color: #0f172a;
+    border: 1px solid #0f172a;
+    border-radius: 8px;
+}
+
+/* Timeframe buttons in charts */
+TradeChartWidget QPushButton {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 10px;
+    min-width: 25px;
+    max-width: 35px;
+    min-height: 18px;
+    max-height: 22px;
+}
+
+TradeChartWidget QPushButton:hover {
+    background-color: #1e293b;
+    border: 1px solid #00D4FF;
+}
+
+TradeChartWidget QPushButton:pressed {
+    background-color: #060916;
+}
+
+TradeChartWidget QPushButton:checked {
+    background-color: #0D6EFD;
+    border: 1px solid #00D4FF;
+}
+
+/* ========================================
+   TEXT STYLES
+   ======================================== */
+
+/* Secondary text color for labels */
+QLabel.secondary {
+    color: #94a3b8;
+}
+
+QLabel#secondary_text {
+    color: #94a3b8;
+}
+
+/* Status colors */
+QLabel.status_active {
+    color: #4CAF50;
+}
+
+QLabel.status_inactive {
+    color: #94a3b8;
+}
+
+QLabel.status_paused {
+    color: #FF9800;
+}
+
+QLabel.status_error {
+    color: #F44336;
+}
+
+/* Profit/loss colors */
+QLabel.profit_positive {
+    color: #4CAF50;
+}
+
+QLabel.profit_negative {
+    color: #F44336;
+}
+
+QLabel.profit_neutral {
+    color: #ffffff;
+}
+
+/* ========================================
+   SMALL BUTTONS (Copy, etc.)
+   ======================================== */
+
+QPushButton#copy_button, QPushButton#small_button {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 4px;
+    color: #94a3b8;
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+QPushButton#copy_button:hover, QPushButton#small_button:hover {
+    background-color: #1e293b;
+    border-color: #00D4FF;
+    color: #ffffff;
+}
+
+QPushButton#copy_button:pressed, QPushButton#small_button:pressed {
+    background-color: #060916;
+}
+
+/* ========================================
+   ASSET ROWS & SPECIAL WIDGETS
+   ======================================== */
+
+AssetRowWidget {
+    background-color: #0a0e27;
+    border: 1px solid #1e293b;
+    border-radius: 5px;
+}
+
+/* ========================================
+   PLACEHOLDERS & EMPTY STATES
+   ======================================== */
+
+QLabel#placeholder_text {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* ========================================
+   COMBO BOXES & SPINBOXES
+   ======================================== */
+
+QComboBox {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+
+QComboBox:hover {
+    border: 1px solid #00D4FF;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #94a3b8;
+    margin-right: 5px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    selection-background-color: #0D6EFD;
+}
+
+QSpinBox, QDoubleSpinBox {
+    background-color: #0a0e27;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 1px 2px;
+}
+
+QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid #0D6EFD;
+}

@@ -1,0 +1,48 @@
+{
+    "network_fees": {
+        "trade_fee_lock_xrd": 10.0,         // Fallback XRD fee lock if preview fails (Radix refunds excess)
+        "trade_fee_multiplier": 2.5,      // Safety multiplier for trade fee preview estimation
+        "withdrawal_fee_multiplier": 1.75, // Safety multiplier for withdrawal fee estimation
+        "min_profit_threshold_xrd": 0.00    // Minimum expected profit in XRD to justify a trade, not used
+    },
+    "trade_pairs": {
+        "min_volume_7d": 50000,  // Minimum 7-day volume in XRD for considering a token
+        "min_price_impact": 5,    // Maximum price impact percentage for valid pairs
+        "test_amount_xrd": 5000  // Amount in XRD to use for testing pair routing & price impact
+    },
+    "api": {
+        "rate_limit": 10,          // Seconds between API calls
+        "retry_attempts": 3,      // Number of retry attempts for failed API calls
+        "retry_delay": 5          // Seconds to wait between retries
+    },
+    "logging": {
+        "level": "INFO",          // Logging level (DEBUG, INFO, WARNING, ERROR)
+        "max_size": 10000000,     // Maximum log file size in bytes
+        "backup_count": 5         // Number of backup log files to keep
+    },
+    "stops": {
+        "stop_loss_percentage": 0.0,       // Switch to accumulation token to preserve capital
+        "trailing_stop_percentage": 0.0    // Take whatever profit is left in the trade.
+    },
+    "strategies": {
+        "kelly": {
+            "fractional_multiplier": 0.25,  // Conservative Kelly fraction (0.25 = 25% of full Kelly)
+            "min_position_size": 0.10,      // Minimum position size (10% of full amount)
+            "max_position_size": 1.0,       // Maximum position size (100% of full amount)
+            "min_trades_required": 10,      // Minimum trade history needed for Kelly calculation
+            "lookback_trades": 20           // Number of recent trades to analyze
+        },
+        "manual": {
+            "adx_threshold": 32,            // ADX below this = ranging market (skip trade)
+            "adx_period": 14                // Period for ADX calculation
+        },
+        "ai_strategy": {
+            "execution_threshold": 0.80,    // Minimum signal strength to execute (0-1, higher = more selective)
+            "confidence_threshold": 0.85,   // Minimum confidence level required (0-1, higher = more certain)
+            "min_flip_interval_minutes": 60 // Cooldown period between flips (prevents rapid oscillation)
+        },
+        "ping_pong": {
+            "price_tolerance": 0.00         // % tolerance for price validation
+        }
+    }
+}

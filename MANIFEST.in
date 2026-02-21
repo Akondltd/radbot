@@ -1,0 +1,39 @@
+# Package metadata
+include LICENSE-agpl-3.0.txt
+include README.md
+include version.py
+include requirements-hashed.txt
+include resources.qrc
+
+# Configuration files
+recursive-include config *.json *.txt *.py
+exclude config/old/*
+exclude config/*.pyd
+exclude config/*.pyx
+exclude config/*.c
+
+# Documentation
+recursive-include docs *.md
+
+# GUI styling
+recursive-include gui/styling *.qss
+
+# Images and icons
+recursive-include images *.png *.gif *.ico
+include images/qr/README.md
+
+# Platform libraries
+recursive-include libs *.dll *.so *.dylib *.txt *.md
+
+# Security
+include security/known_good_packages.json
+
+# Exclude development and build artifacts
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.egg-info
+prune venv*
+prune thimblefairy
+prune wtahtaw
+prune .windsurf

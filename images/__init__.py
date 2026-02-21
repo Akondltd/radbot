@@ -1,0 +1,1 @@
+# Application images and icons

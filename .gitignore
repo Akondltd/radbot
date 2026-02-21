@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+venv*/
+.venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.windsurf/
+
+# Runtime data
+data/radbot.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+logs/
+*.log
+app_output.log
+debug.log
+fatal_crash.log
+
+# Config with secrets
+.env
+*.env.local
+
+# Wallet files (sensitive - root level only)
+/*_wallet*.json
+/radbot_*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Compiled Cython extensions
+config/fee_native.cp*-win_amd64.pyd
+config/fee_native.cpython-*.so
+config/*.c
+
+# Qt compiled resources (regenerated from .qrc)
+# gui/resources_rc.py
+
+# Build artifacts
+*.spec
+*.manifest
+version.rc
+
+# Thimblefairy (separate project)
+thimblefairy/
+wtahtaw/
+
+# Old/deprecated config
+config/old/
+
+# QR code output
+images/qr/*.png
+images/qr/*.svg
+!images/qr/README.md
+
+# Token icon cache (downloaded at runtime)
+images/icons/
