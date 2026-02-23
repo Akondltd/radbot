@@ -97,6 +97,7 @@ def main():
         app.processEvents()
 
         window.show()
+        app.setStyleSheet(app.styleSheet())  # Force re-apply to all widgets
         splash.finish(window)
 
         sys.exit(app.exec())

@@ -103,8 +103,8 @@ class WalletQRCodeWindow(QDialog):
         """
         qr = segno.make(address)
         
-        # Create QR code directory in project root
-        qr_dir = PACKAGE_ROOT / "images" / "qr"
+        # Create QR code directory in user data
+        qr_dir = USER_DATA_DIR / "images" / "qr"
         qr_dir.mkdir(parents=True, exist_ok=True)
         
         # Generate filename from last 12 chars of address (unique identifier)
@@ -223,7 +223,7 @@ class WalletTabMain(QWidget):
         try:
             # Get project root (parent of gui directory)
             # Convert wallet path to relative
-            relative_path = wallet_file_path.resolve().relative_to(PACKAGE_ROOT)
+            relative_path = wallet_file_path.resolve().relative_to(USER_DATA_DIR)
             return str(relative_path).replace('\\', '/')  # Use forward slashes for cross-platform
         except ValueError:
             # If wallet is outside project directory, return absolute path as fallback
@@ -239,7 +239,7 @@ class WalletTabMain(QWidget):
         wallet_path = Path(stored_path)
         if not wallet_path.is_absolute():
             # Resolve relative to project root
-            wallet_path = (PACKAGE_ROOT / wallet_path).resolve()
+            wallet_path = (USER_DATA_DIR / wallet_path).resolve()
         return wallet_path
     
     def _setup_signals(self):

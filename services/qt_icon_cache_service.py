@@ -14,7 +14,7 @@ from utils.api_tracker import api_tracker
 # Constants — recheck intervals for icon freshness
 NINETY_DAYS_IN_SECONDS = 90 * 24 * 60 * 60       # Valid icons: recheck every ~3 months
 ONE_EIGHTY_DAYS_IN_SECONDS = 180 * 24 * 60 * 60  # Placeholder icons: retry every ~6 months
-from config.paths import PACKAGE_ROOT
+from config.paths import PACKAGE_ROOT, USER_DATA_DIR
 DEFAULT_ICON_PATH = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
 PLACEHOLDER_DB_PATH = 'images/default_token_icon.png'
 
@@ -28,7 +28,7 @@ class QtIconCacheService(QtBaseService):
 
     def __init__(self, interval_ms=3600000):  # Default to 1 hour
         super().__init__('qt_icon_cacher')
-        self.icon_cache_dir = PACKAGE_ROOT / 'images' / 'icons'
+        self.icon_cache_dir = USER_DATA_DIR / 'images' / 'icons'
         self.icon_cache_dir.mkdir(parents=True, exist_ok=True)
         self.timer = QTimer()
         self.timer.setInterval(interval_ms)
