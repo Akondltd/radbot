@@ -127,7 +127,9 @@ class HelpTabMain(QWidget):
             else:
                 # Read the markdown file
                 try:
-                    with open(markdown_file, 'r', encoding='utf-8') as f:
+                    from config.paths import PACKAGE_ROOT
+                    full_path = PACKAGE_ROOT / markdown_file
+                    with open(full_path, 'r', encoding='utf-8') as f:
                         content_text = f.read()
                     content_html = self._markdown_to_html(content_text)
                 except FileNotFoundError:
