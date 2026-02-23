@@ -35,15 +35,15 @@ Price impact = how much your trade moves the market price.
 
 ✅ **Good (Low Impact):**
 - Pool has 2,000,000 XRD liquidity
-- You trade 50,000 XRD (2.5% of pool)
-- Price impact: ~0.3%
+- You trade 10,000 XRD (0.5% of pool)
+- Price impact: ~0.5%
 - You get almost exactly the market price
 
 ❌ **Bad (High Impact):**
 - Pool has 100,000 XRD liquidity
 - You trade 50,000 XRD (50% of pool!)
-- Price impact: ~12%
-- You pay would 12% more than market price
+- Price impact: F#@k
+- You would pay way over the market price
 - Radbot wont execute trades for this pair until the impact improves.
 
 ---
@@ -65,7 +65,7 @@ Price impact = how much your trade moves the market price.
 
 ### For Intermediate Traders
 
-**Try non-XRD tokens:**
+**Try non-XRD trade pairs:**
 - ASTRL/CAVIAR - Astrolescent / CaviarNine
 - DFP2/ASTRL - DefiPlaza / Astrolescent
 - OCI/DFP2 - Ociswap / DefiPlaza
@@ -79,7 +79,7 @@ Price impact = how much your trade moves the market price.
 ### For Advanced
 
 **Smaller tokens** (be careful!):
-- Must have 50,000+ XRD weekly volume
+- Must have sensible XRD weekly volume
 - Watch for news/announcements
 - Higher risk, higher potential reward
 - Use smaller position sizes

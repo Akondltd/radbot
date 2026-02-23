@@ -25,7 +25,7 @@ Once your wallet loads, you'll see:
 - **XRD balance**: The main Radix token
 - **Other tokens**: Any tokens you currently hold
 
-You ideally need at least ~550 XRD to start trading (500 XRD for the trade + 50 XRD for network fees from trading), maybe even 5500 XRD if the price is way down.
+You ideally need at least ~1000 XRD to start trading (900 XRD for the trade + 100 XRD for network fees from trading), maybe even 5500 XRD if the price is way down.
 
 ### Step 3: Create Your First Trade
 
@@ -80,7 +80,7 @@ Example:
 ## Safety First
 
 ✅ **DO:**
-- Start with small amounts (~500 XRD)
+- Start with small amounts (~5000 XRD)
 - Test for a few days before adding more funds
 - Check your trades daily until you're comfortable
 - Keep your seed phrase written down and safe
@@ -89,7 +89,7 @@ Example:
 - Put your entire wallet into one trade
 - Trade more than you can afford to lose
 - Share your password or seed phrase with anyone ... EVER!!!
-- Panic-close trades after one loss (give Radbot time to work, the machine learning needs 10 trades to have data to start working with)
+- Panic-close trades after one loss (give Radbot time to work, the machine learning needs 10 trades to have data to start working with on each trade)
 
 ## What Happens Next?
 

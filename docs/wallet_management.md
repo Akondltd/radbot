@@ -83,10 +83,10 @@ Radbot uses **RAM-only password storage**:
 **When you close RadBot:**
 1. RAM is cleared
 2. Password disappears completely
-3. Next time you open Radbot, you'll need to enter it again
+3. Next time you open Radbot, you'll need to enter your password again
 
 This means:
-- ✅ Bot can trade 24/7 without asking for password repeatedly
+- ✅ Radbot can trade 24/7 without asking for password repeatedly
 - ✅ Password never touches your hard drive (safe from most attacks)
 - ✅ Closing Radbot = instant password wipe
 - ❌ You need to re-enter password after computer restart
@@ -141,7 +141,7 @@ There are 2 Wallet Password fields on the Wallet page. One for loading, creating
    - Example: 10,000 XRD in cold wallet, 1,000 XRD in trading wallet
 
 6. **Test with small amounts first**
-   - Load wallet with just 500 XRD
+   - Load wallet with just 1000 XRD
    - Run Radbot for a week
    - Once comfortable, maybe add more funds
 
@@ -267,7 +267,7 @@ A: No. Seed phrases are only shown once during wallet creation, then never again
 1. **Don't panic** - blockchain transactions are atomic (they complete or fail, no in-between)
 2. **Restart computer and Radbot**
 3. **Load wallet** and check Active Trades tab
-4. **Check Trade History** - last trade will show as complete or not executed
+4. **Check Trade History** - last trade will show as SUCCESS or FAILED
 5. If trade shows as "pending" for 5+ minutes, check Radix Dashboard for transaction status
 
 ### If You Need to Restore from Seed Phrase

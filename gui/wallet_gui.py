@@ -1849,7 +1849,7 @@ class WalletTabMain(QWidget):
                     # Check if withdrawal leaves enough XRD for fees
                     margin = xrd_balance - xrd_withdraw_amount
                     num_tokens = len(withdrawals_to_review)
-                    estimated_max_fee = Decimal("0.3") + (Decimal("0.115") * Decimal(str(num_tokens - 1)))
+                    estimated_max_fee = Decimal("0.35") + (Decimal("0.16") * Decimal(str(num_tokens - 1)))
                     safe_margin = max(estimated_max_fee * Decimal("1.2"), Decimal("1.0"))
                     
                     if margin >= safe_margin:
@@ -1862,7 +1862,7 @@ class WalletTabMain(QWidget):
                 else:
                     # Not withdrawing XRD - calculate fee based on number of tokens
                     num_tokens = len(withdrawals_to_review)
-                    estimated_max_fee = Decimal("0.3") + (Decimal("0.115") * Decimal(str(num_tokens - 1)))
+                    estimated_max_fee = Decimal("0.35") + (Decimal("0.16") * Decimal(str(num_tokens - 1)))
                     safe_margin = max(estimated_max_fee * Decimal("1.2"), Decimal("1.0"))
                     display_fee = estimated_max_fee
                     actual_fee = safe_margin
@@ -1930,7 +1930,7 @@ class WalletTabMain(QWidget):
                         logger.info(f"Re-calculated fee after token change: {display_fee} XRD")
                     else:
                         num_tokens = len(withdrawals_to_review)
-                        estimated_max_fee = Decimal("0.3") + (Decimal("0.115") * Decimal(str(num_tokens - 1)))
+                        estimated_max_fee = Decimal("0.35") + (Decimal("0.16") * Decimal(str(num_tokens - 1)))
                         safe_margin = max(estimated_max_fee * Decimal("1.2"), Decimal("1.5"))
                         display_fee = safe_margin
                         actual_fee = safe_margin
@@ -1948,7 +1948,7 @@ class WalletTabMain(QWidget):
                         logger.info(f"Preview fee for close-to-balance withdrawal: {display_fee} XRD")
                     else:
                         num_tokens = len(withdrawals_to_review)
-                        estimated_max_fee = Decimal("0.3") + (Decimal("0.115") * Decimal(str(num_tokens - 1)))
+                        estimated_max_fee = Decimal("0.35") + (Decimal("0.16") * Decimal(str(num_tokens - 1)))
                         safe_margin = max(estimated_max_fee * Decimal("1.2"), Decimal("1.5"))
                         display_fee = safe_margin
                         actual_fee = safe_margin
@@ -1957,7 +1957,7 @@ class WalletTabMain(QWidget):
             # Final check: ensure we have fee values
             if display_fee is None:
                 num_tokens = len(withdrawals_to_review)
-                estimated_max_fee = Decimal("0.3") + (Decimal("0.115") * Decimal(str(num_tokens - 1)))
+                estimated_max_fee = Decimal("0.35") + (Decimal("0.16") * Decimal(str(num_tokens - 1)))
                 safe_margin = max(estimated_max_fee * Decimal("1.2"), Decimal("1.0"))
                 display_fee = estimated_max_fee
                 actual_fee = safe_margin
