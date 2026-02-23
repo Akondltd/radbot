@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VENV_DIR="akond_rad_bot_venv"
+VENV_DIR="radbot_venv"
 
 if [ ! -d "$VENV_DIR" ]; then
   echo "Virtual environment not found. Run ./setup.sh first."
@@ -9,6 +9,6 @@ fi
 
 echo "Activating virtual environment..."
 source "$VENV_DIR/bin/activate"
-echo "Launching Akond Rad Bot..."
+echo "Launching Radbot..."
 
 python3 main.py

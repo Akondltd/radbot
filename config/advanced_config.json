@@ -2,7 +2,7 @@
     "network_fees": {
         "trade_fee_lock_xrd": 10.0,         // Fallback XRD fee lock if preview fails (Radix refunds excess)
         "trade_fee_multiplier": 2.5,      // Safety multiplier for trade fee preview estimation
-        "withdrawal_fee_multiplier": 1.75, // Safety multiplier for withdrawal fee estimation
+        "withdrawal_fee_multiplier": 2.00, // Safety multiplier for withdrawal fee estimation
         "min_profit_threshold_xrd": 0.00    // Minimum expected profit in XRD to justify a trade, not used
     },
     "trade_pairs": {

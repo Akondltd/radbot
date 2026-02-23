@@ -1705,12 +1705,12 @@ class WalletTabMain(QWidget):
             tight_fee = rtb.get_withdrawal_fee_preview(
                 destination_address=withdraw_address,
                 transfers=transfers_pass2,
-                safety_multiplier=Decimal('1.02')
+                safety_multiplier=Decimal('1.10')
             )
             
             if tight_fee is not None and tight_fee > 0:
                 buffer = Decimal(str(tight_fee))
-                logger.info(f"Max withdraw pass 2 — tight fee: {buffer} XRD (2% safety)")
+                logger.info(f"Max withdraw pass 2 — tight fee: {buffer} XRD (10% safety)")
             else:
                 # Pass 2 failed, use pass 1 result with small fixed buffer
                 buffer = raw_fee_decimal + Decimal("0.01")

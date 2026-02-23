@@ -56,7 +56,7 @@ def _try_load_native_module():
         
         # Find the .pyd or .so file
         for filename in os.listdir(config_dir):
-            if filename.startswith('fee_native') and (filename.endswith('.pyd') or filename.endswith('.so')):
+            if filename.startswith('fee_native') and (filename.endswith('.pyd') or filename.endswith('.so') or filename.endswith('.dylib')):
                 native_path = os.path.join(config_dir, filename)
                 spec = importlib.util.spec_from_file_location("fee_native", native_path)
                 if spec and spec.loader:

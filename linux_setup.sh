@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "Running environment setup for Akond Rad Bot..."
+echo "Running environment setup for Radbot..."
 ./setup_env.sh
-echo "Setup complete. You can launch the bot by running ./linux_launch.sh"
+echo "Setup complete. Launch Radbot by running ./linux_launch.sh"

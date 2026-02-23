@@ -13,6 +13,7 @@ build/
 
 # Virtual environments
 venv*/
+radbot_venv/
 .venv/
 ENV/
 
@@ -25,7 +26,6 @@ ENV/
 .windsurf/
 
 # Runtime data
-data/radbot.db
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
@@ -73,5 +73,5 @@ images/qr/*.png
 images/qr/*.svg
 !images/qr/README.md
 
-# Token icon cache (downloaded at runtime)
-images/icons/
+# Token icon cache (keep base icons, ignore temp files)
+images/icons/*.tmp
