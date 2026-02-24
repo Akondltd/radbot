@@ -21,6 +21,18 @@ if [ "$PYTHON_MAJOR" -lt 3 ] || { [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR"
 fi
 echo "Detected Python $PYTHON_VERSION"
 
+# Check for Python development headers (needed for C extensions like ed25519-blake2b)
+if ! python3 -c "import sysconfig; assert sysconfig.get_path('include')" 2>/dev/null || \
+   [ ! -f "$(python3 -c 'import sysconfig; print(sysconfig.get_path("include"))')/Python.h" ]; then
+    echo ""
+    echo "WARNING: Python development headers not found."
+    echo "Some dependencies require compilation. Please install them:"
+    echo "  Ubuntu/Debian:  sudo apt install python3-dev build-essential"
+    echo "  Fedora/RHEL:    sudo dnf install python3-devel gcc"
+    echo "  Arch:           sudo pacman -S base-devel"
+    echo ""
+fi
+
 # Create virtual environment directory
 VENV_DIR="radbot_venv"
 

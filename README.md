@@ -42,6 +42,27 @@ radbot
 - An active internet connection (for Radix Gateway API access)
 - XRD tokens in your wallet for trading and network fees
 
+### Linux Prerequisites
+
+Some dependencies include C extensions that need compilation. Install the build tools first:
+
+```bash
+# Ubuntu / Debian
+sudo apt install python3-dev build-essential
+
+# Fedora / RHEL
+sudo dnf install python3-devel gcc
+
+# Arch
+sudo pacman -S base-devel
+```
+
+### macOS Prerequisites
+
+```bash
+xcode-select --install
+```
+
 ## First Steps
 
 1. **Load your wallet** — Create a new wallet, import a seed phrase, or load an existing wallet file
