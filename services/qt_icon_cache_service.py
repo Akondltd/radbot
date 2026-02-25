@@ -11,9 +11,7 @@ from config.database_config import get_db_connection
 from services.qt_base_service import QtBaseService, Worker
 from utils.api_tracker import api_tracker
 
-# Constants — recheck intervals for icon freshness
-NINETY_DAYS_IN_SECONDS = 90 * 24 * 60 * 60       # Valid icons: recheck every ~3 months
-ONE_EIGHTY_DAYS_IN_SECONDS = 180 * 24 * 60 * 60  # Placeholder icons: retry every ~6 months
+# No recheck — icons are fetched once and kept permanently
 from config.paths import PACKAGE_ROOT, USER_DATA_DIR
 DEFAULT_ICON_PATH = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
 PLACEHOLDER_DB_PATH = 'images/default_token_icon.png'
@@ -161,26 +159,17 @@ class QtIconCacheService(QtBaseService):
 
     def _get_tokens_to_check(self):
         """
-        Fetches tokens from the DB that need their icon checked.
-        This includes:
-        1. Tokens with no local icon path yet.
-        2. Tokens with a valid icon, not checked in the last 90 days (~3 months).
-        3. Tokens with a placeholder icon, not checked in the last 180 days (~6 months).
+        Fetches tokens from the DB that still need an icon downloaded.
+        Only selects tokens with no local icon path set yet — existing
+        icons are never re-downloaded or overwritten.
         """
         conn = get_db_connection()
         cursor = conn.cursor()
-        now = int(time.time())
-        ninety_days_ago = now - NINETY_DAYS_IN_SECONDS
-        one_eighty_days_ago = now - ONE_EIGHTY_DAYS_IN_SECONDS
 
-        query = f"""
+        query = """
             SELECT rowid, address, icon_url FROM tokens
             WHERE icon_url IS NOT NULL AND icon_url != ''
-            AND (
-                icon_local_path IS NULL OR icon_local_path = '' OR
-                (icon_local_path != '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {ninety_days_ago}) OR
-                (icon_local_path = '{PLACEHOLDER_DB_PATH}' AND icon_last_checked_timestamp < {one_eighty_days_ago})
-            )
+            AND (icon_local_path IS NULL OR icon_local_path = '')
         """
         cursor.execute(query)
         rows = cursor.fetchall()
@@ -196,6 +185,14 @@ class QtIconCacheService(QtBaseService):
         """
         token_address = token['address']
         icon_url = token['icon_url']
+        
+        # If the icon file already exists on disk, keep it — never overwrite
+        local_filename = f"{token['rowid']}.png"
+        local_filepath = self.icon_cache_dir / local_filename
+        if local_filepath.exists():
+            relative_path = (Path('images') / 'icons' / local_filename).as_posix()
+            self.logger.debug(f"Icon already exists for {token_address}, skipping download")
+            return relative_path
         
         try:
             # Download image data to memory
