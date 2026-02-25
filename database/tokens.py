@@ -593,16 +593,18 @@ class TokenManager:
     def get_token_icon_path(self, token_address: str) -> Optional[str]:
         """Get the local icon path for a token if it exists."""
         try:
-            import os
             from pathlib import Path
+            from config.paths import USER_DATA_DIR
+            
+            icon_dir = USER_DATA_DIR / 'images' / 'icons'
         
             # Check for cached icon in images/icons folder
             if token_address:
                 # Try different icon formats
                 for ext in ['.png', '.jpeg', '.jpg', '.webp', '.gif']:
-                    icon_path = Path(f"images/icons/{token_address}{ext}")
+                    icon_path = icon_dir / f"{token_address}{ext}"
                     if icon_path.exists():
-                        return str(icon_path)
+                        return (Path('images') / 'icons' / f"{token_address}{ext}").as_posix()
                     
                 # Try using symbol as filename
                 cursor = self._conn.cursor()
@@ -611,9 +613,9 @@ class TokenManager:
                 if row and row[0]:
                     symbol = row[0]
                     for ext in ['.png', '.jpeg', '.jpg', '.webp', '.gif']:
-                        icon_path = Path(f"images/icons/{symbol}{ext}")
+                        icon_path = icon_dir / f"{symbol}{ext}"
                         if icon_path.exists():
-                            return str(icon_path)
+                            return (Path('images') / 'icons' / f"{symbol}{ext}").as_posix()
         
             return None
         except Exception as e:

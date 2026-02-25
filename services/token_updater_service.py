@@ -21,6 +21,7 @@ from PySide6.QtCore import QTimer, QThreadPool, QByteArray, QBuffer, QIODevice
 from PySide6.QtGui import QImage
 from services.qt_base_service import QtBaseService, Worker
 from config.database_config import get_db_connection
+from config.paths import USER_DATA_DIR
 from utils.api_tracker import api_tracker
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,8 @@ class QtTokenUpdaterService(QtBaseService):
             interval_ms: Milliseconds between updates (default 24 hours = 86400000ms)
         """
         super().__init__('qt_token_updater')
+        self.icon_cache_dir = USER_DATA_DIR / 'images' / 'icons'
+        self.icon_cache_dir.mkdir(parents=True, exist_ok=True)
         self._work_lock = threading.Lock()  # Prevent concurrent token DB writes
         self.timer = QTimer()
         self.timer.setInterval(interval_ms)
@@ -163,8 +166,7 @@ class QtTokenUpdaterService(QtBaseService):
             self.logger.error(f"Error parsing Astrolescent API response: {e}", exc_info=True)
             return []
     
-    @staticmethod
-    def _sanitize_and_cache_icon(icon_url: str, token_address: str, order_index: int) -> str:
+    def _sanitize_and_cache_icon(self, icon_url: str, token_address: str, order_index: int) -> str:
         """
         Download, sanitize, and cache a token icon from an untrusted URL.
         
@@ -259,17 +261,13 @@ class QtTokenUpdaterService(QtBaseService):
                 output = ImageOps.fit(img_rgba, mask.size, centering=(0.5, 0.5))
                 output.putalpha(mask)
                 
-                # Prepare cache directory
-                cache_dir = Path("images/icons")
-                cache_dir.mkdir(parents=True, exist_ok=True)
-                
                 # Define final filename (ALWAYS PNG)
                 cache_filename = f"{order_index}.png"
-                cache_path = cache_dir / cache_filename
+                cache_path = self.icon_cache_dir / cache_filename
                 
                 # Clean up any existing files with different extensions for this ID
                 for ext in ['.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg']:
-                    old_file = cache_dir / f"{order_index}{ext}"
+                    old_file = self.icon_cache_dir / f"{order_index}{ext}"
                     if old_file.exists():
                         try:
                             old_file.unlink()
@@ -285,8 +283,9 @@ class QtTokenUpdaterService(QtBaseService):
                 mask.close()
                 img_rgba.close()
                 
+                relative_path = (Path('images') / 'icons' / cache_filename).as_posix()
                 logger.info(f"Sanitized and cached icon: {cache_path}")
-                return str(cache_path)
+                return relative_path
 
             except (IOError, SyntaxError, Exception) as e:
                 logger.warning(f"PIL failed to process image from {icon_url}: {e}")
@@ -334,28 +333,25 @@ class QtTokenUpdaterService(QtBaseService):
                     order_index = token.get('orderIndex')
                     
                     if icon_url and order_index is not None:
-                        # Check if already cached
-                        expected_cache_path = f"images/icons/{order_index}.png"
-                        import os
+                        # Check if already cached on disk — skip download if so
+                        cache_filename = f"{order_index}.png"
+                        cached_file = self.icon_cache_dir / cache_filename
+                        relative_path = (Path('images') / 'icons' / cache_filename).as_posix()
                         
-                        # Always attempt to sanitize and cache the icon
-                        # This ensures database always has the correct path, and allows for logo updates
-                        self.logger.debug(f"Processing icon for {token.get('symbol', 'UNKNOWN')} (orderIndex={order_index})")
-                        sanitized_path = self._sanitize_and_cache_icon(
-                            icon_url,
-                            token.get('address'),
-                            order_index
-                        )
-                        
-                        if sanitized_path:
-                            self.logger.debug(f"Icon sanitized and cached: {sanitized_path}")
-                            # Inject the local path into the token dict so TokenManager can save it
-                            token['iconLocalPath'] = sanitized_path
+                        if cached_file.exists():
+                            self.logger.debug(f"Icon already cached for {token.get('symbol', 'UNKNOWN')}: {cached_file}")
+                            token['iconLocalPath'] = relative_path
                         else:
-                            # Fallback: if file exists from previous run, use it
-                            if os.path.exists(expected_cache_path):
-                                self.logger.debug(f"Using existing cached icon for {token.get('symbol', 'UNKNOWN')}")
-                                token['iconLocalPath'] = expected_cache_path
+                            self.logger.debug(f"Processing icon for {token.get('symbol', 'UNKNOWN')} (orderIndex={order_index})")
+                            sanitized_path = self._sanitize_and_cache_icon(
+                                icon_url,
+                                token.get('address'),
+                                order_index
+                            )
+                            
+                            if sanitized_path:
+                                self.logger.debug(f"Icon sanitized and cached: {sanitized_path}")
+                                token['iconLocalPath'] = sanitized_path
                             else:
                                 self.logger.warning(
                                     f"Failed to sanitize icon for {token.get('symbol', 'UNKNOWN')} "
