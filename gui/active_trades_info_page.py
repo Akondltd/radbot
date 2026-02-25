@@ -37,7 +37,7 @@ class ActiveTradeInfoPage(QWidget):
         self.token_manager = token_manager
         self.price_history_manager = PriceHistoryManager(self.trade_manager.conn)  # Legacy - for old pool data
         
-        # Initialize pair-based price history service (uses default "data/radbot.db")
+        # Initialize pair-based price history service (uses DATABASE_PATH from config.paths)
         from services.pair_price_history_service import get_pair_history_service
         self.pair_price_history = get_pair_history_service()
         

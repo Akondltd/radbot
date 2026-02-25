@@ -11,9 +11,8 @@ class QtPriceHistoryService(QtBaseService):
     # Signal emitted after trade monitor completes (forwarded from trade monitor)
     monitoring_cycle_completed = Signal()
 
-    def __init__(self, interval_ms=600000, db_path="data/radbot.db"):  # Default to 10 minutes
+    def __init__(self, interval_ms=600000):  # Default to 10 minutes
         super().__init__('qt_price_history_updater')
-        self.db_path = db_path
         self.timer = QTimer()
         self.timer.setInterval(interval_ms)
         self.timer.timeout.connect(self.trigger_run)
@@ -56,7 +55,7 @@ class QtPriceHistoryService(QtBaseService):
             price_service.get_all_prices(force_refresh=True)
             
             # Step 2: Record current prices for all selected trade pairs
-            pair_history = get_pair_history_service(self.db_path)
+            pair_history = get_pair_history_service()
             recorded_count = pair_history.record_all_active_pairs()
             
             end_time = time.time()

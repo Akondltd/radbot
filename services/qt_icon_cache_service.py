@@ -34,6 +34,7 @@ class QtIconCacheService(QtBaseService):
 
     def start(self):
         self.logger.info(f"Starting Qt Icon Cache Service. Run interval: {self.timer.interval() / 1000}s")
+        self.logger.info(f"Icon cache directory: {self.icon_cache_dir}")
         QTimer.singleShot(10 * 1000, self.trigger_run)  # Initial 10s delay
         self.timer.start()
 

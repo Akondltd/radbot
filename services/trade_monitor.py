@@ -577,7 +577,7 @@ class TradeMonitor(QObject):
     def _get_price_history(self, base_token: str, quote_token: str, periods: int = 50) -> List[Decimal]:
         """Get historical price data for technical analysis from pair history."""
         try:
-            pair_history = get_pair_history_service()  # Uses default db path
+            pair_history = get_pair_history_service()
             history_data = pair_history.get_price_history(base_token, quote_token, limit=periods)
             
             if history_data:
@@ -597,7 +597,7 @@ class TradeMonitor(QObject):
         try:
             from models.data_models import Candle
             
-            pair_history = get_pair_history_service()  # Uses default db path
+            pair_history = get_pair_history_service()
             history_data = pair_history.get_price_history(base_token, quote_token, limit=periods)
             
             if history_data:

@@ -7,6 +7,7 @@ import logging
 import time
 from typing import List, Dict, Optional
 from decimal import Decimal
+from config.paths import DATABASE_PATH
 from services.astrolescent_price_service import get_price_service
 
 logger = logging.getLogger(__name__)
@@ -17,14 +18,9 @@ class PairPriceHistoryService:
     Replaces pool-based price history with pair-based history using Astrolescent prices.
     """
     
-    def __init__(self, db_path: str):
-        """
-        Initialize the price history service.
-        
-        Args:
-            db_path: Path to SQLite database
-        """
-        self.db_path = db_path
+    def __init__(self):
+        """Initialize the price history service using the canonical DATABASE_PATH."""
+        self.db_path = str(DATABASE_PATH)
         self._initialize_tables()
     
     def _get_connection(self):
@@ -392,9 +388,9 @@ class PairPriceHistoryService:
 # Global singleton instance
 _pair_history_service = None
 
-def get_pair_history_service(db_path: str = "data/radbot.db") -> PairPriceHistoryService:
+def get_pair_history_service() -> PairPriceHistoryService:
     """Get the global pair history service instance."""
     global _pair_history_service
     if _pair_history_service is None:
-        _pair_history_service = PairPriceHistoryService(db_path)
+        _pair_history_service = PairPriceHistoryService()
     return _pair_history_service
