@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "radbot"
-version = "1.0.10"
+version = "1.0.11"
 description = "Radix Aggregated DEX Trading Bot"
 readme = "README.md"
 license = {text = "AGPL-3.0-or-later"}
