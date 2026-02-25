@@ -65,8 +65,12 @@ class PairPriceHistoryService:
     
     def _normalize_pair(self, base_token: str, quote_token: str) -> tuple[str, str, bool]:
         """
-        Normalize token pair so the more expensive token is always the quote (denominator).
-        This prevents close pairs like xUSDC/xUSDT from flip-flopping.
+        Normalize token pair using deterministic lexicographic ordering.
+        
+        The alphabetically smaller address is always base, the larger is always
+        quote.  This is completely independent of live prices, so stablecoin
+        pairs (e.g. xUSDT/hUSDC) can never flip-flop between recording and
+        querying.
         
         Args:
             base_token: Base token address
@@ -75,41 +79,16 @@ class PairPriceHistoryService:
         Returns:
             Tuple of (normalized_base, normalized_quote, was_swapped)
         """
-        try:
-            price_service = get_price_service()
-            
-            # Get USD prices
-            base_data = price_service.get_token_price(base_token)
-            quote_data = price_service.get_token_price(quote_token)
-            
-            if not base_data or not quote_data:
-                logger.warning(f"Could not get USD prices for normalization, using original order")
-                return base_token, quote_token, False
-            
-            base_usd = base_data.get('tokenPriceUSD', 0)
-            quote_usd = quote_data.get('tokenPriceUSD', 0)
-            
-            if base_usd == 0 or quote_usd == 0:
-                logger.warning(f"Zero USD price detected, using original order")
-                return base_token, quote_token, False
-            
-            # If base is more expensive than quote, swap them
-            # We want: cheaper token / expensive token (so price is < 1.0)
-            if base_usd > quote_usd:
-                logger.debug(f"Swapping pair: {base_data.get('symbol')} (${base_usd}) > {quote_data.get('symbol')} (${quote_usd})")
-                return quote_token, base_token, True
-            else:
-                return base_token, quote_token, False
-                
-        except Exception as e:
-            logger.error(f"Error normalizing pair: {e}", exc_info=True)
+        if base_token <= quote_token:
             return base_token, quote_token, False
+        else:
+            return quote_token, base_token, True
     
     def record_current_price(self, base_token: str, quote_token: str) -> bool:
         """
         Record the current price for a token pair as a data point.
         Uses Astrolescent price service to get current price.
-        Automatically normalizes pair so expensive token is always quote (denominator).
+        Automatically normalizes pair using deterministic address ordering.
         
         Args:
             base_token: Base token address
@@ -121,7 +100,7 @@ class PairPriceHistoryService:
         try:
             price_service = get_price_service()
             
-            # Normalize the pair (expensive token becomes quote)
+            # Normalize the pair (deterministic address ordering)
             norm_base, norm_quote, was_swapped = self._normalize_pair(base_token, quote_token)
             
             # Get current price for the NORMALIZED pair
