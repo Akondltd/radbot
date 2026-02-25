@@ -9,32 +9,16 @@ import logging
 import time
 import threading
 import requests
-import shutil
-import os
-import io
 from typing import List, Dict, Any
-from urllib.parse import urlparse
 from datetime import datetime, timedelta
-from pathlib import Path
-from PIL import Image, ImageOps, ImageDraw
-from PySide6.QtCore import QTimer, QThreadPool, QByteArray, QBuffer, QIODevice
-from PySide6.QtGui import QImage
+from PySide6.QtCore import QTimer, QThreadPool
 from services.qt_base_service import QtBaseService, Worker
 from config.database_config import get_db_connection
-from config.paths import USER_DATA_DIR
 from utils.api_tracker import api_tracker
 
 logger = logging.getLogger(__name__)
 
 ASTROLESCENT_TOKENS_URL = "https://api.astrolescent.com/partner/akond/tokens"
-
-# Security: Maximum icon download size (500KB should be plenty for icons)
-# Prevents resource exhaustion attacks from huge image files
-MAX_ICON_DOWNLOAD_SIZE_BYTES = 500 * 1024
-
-# Security: Download timeout (seconds)
-# Prevents hanging on slow/malicious servers
-ICON_DOWNLOAD_TIMEOUT = 10
 
 
 class QtTokenUpdaterService(QtBaseService):
@@ -48,8 +32,6 @@ class QtTokenUpdaterService(QtBaseService):
             interval_ms: Milliseconds between updates (default 24 hours = 86400000ms)
         """
         super().__init__('qt_token_updater')
-        self.icon_cache_dir = USER_DATA_DIR / 'images' / 'icons'
-        self.icon_cache_dir.mkdir(parents=True, exist_ok=True)
         self._work_lock = threading.Lock()  # Prevent concurrent token DB writes
         self.timer = QTimer()
         self.timer.setInterval(interval_ms)
@@ -166,138 +148,6 @@ class QtTokenUpdaterService(QtBaseService):
             self.logger.error(f"Error parsing Astrolescent API response: {e}", exc_info=True)
             return []
     
-    def _sanitize_and_cache_icon(self, icon_url: str, token_address: str, order_index: int) -> str:
-        """
-        Download, sanitize, and cache a token icon from an untrusted URL.
-        
-        Security approach: "Hybrid Qt+PIL"
-        1. Download image data (with size/timeout limits)
-        2. Load with Qt (QImage) - Handles SVG, PNG, etc. robustly
-        3. Transfer to PIL for standardizing (Resize to 128px, Round, PNG)
-        4. Save as clean PNG to local cache
-        
-        Args:
-            icon_url: URL to download icon from (can be any domain)
-            token_address: Token address for cache filename
-            order_index: Token order index for cache filename
-            
-        Returns:
-            Path to sanitized local icon file, or None if download/sanitization failed
-        """
-        if not icon_url or not isinstance(icon_url, str):
-            return None
-        
-        try:
-            # Security: Only allow HTTPS to prevent MITM
-            parsed = urlparse(icon_url)
-            if parsed.scheme != 'https':
-                logger.warning(f"Rejecting non-HTTPS icon URL: {icon_url}")
-                return None
-            
-            # Download with size and timeout limits
-            logger.debug(f"Downloading icon from: {icon_url}")
-            api_tracker.record('icon_cdn')
-            response = requests.get(
-                icon_url,
-                timeout=ICON_DOWNLOAD_TIMEOUT,
-                stream=True  # Stream to check size before loading all
-            )
-            response.raise_for_status()
-            
-            # Security: Check content length before downloading
-            content_length = response.headers.get('content-length')
-            if content_length and int(content_length) > MAX_ICON_DOWNLOAD_SIZE_BYTES:
-                logger.warning(f"Icon too large ({content_length} bytes): {icon_url}")
-                return None
-            
-            # Download data to memory
-            image_data = b""
-            for chunk in response.iter_content(chunk_size=8192):
-                image_data += chunk
-                if len(image_data) > MAX_ICON_DOWNLOAD_SIZE_BYTES:
-                    logger.warning(f"Icon download exceeded size limit: {icon_url}")
-                    return None
-            
-            # Step 1: Load Image (Hybrid Qt/PIL approach)
-            # Try Qt first (Handles SVG robustly)
-            qimage = QImage()
-            qt_loaded = qimage.loadFromData(QByteArray(image_data))
-            
-            img = None
-            
-            if qt_loaded:
-                # Convert QImage to PIL via PNG buffer
-                buffer = QBuffer()
-                buffer.open(QIODevice.ReadWrite)
-                qimage.save(buffer, "PNG")
-                img = Image.open(io.BytesIO(buffer.data().data()))
-            else:
-                # Fallback: Try PIL directly (Handles WEBP if Qt plugin missing)
-                try:
-                    img = Image.open(io.BytesIO(image_data))
-                    logger.debug(f"Qt failed to load, loaded with PIL (likely WEBP): {icon_url}")
-                except Exception:
-                    logger.warning(f"Failed to load image with both Qt and PIL from: {icon_url}")
-                    return None
-
-            # Step 2: Process with PIL
-            try:
-                # Convert to RGBA to support transparency
-                # Note: .convert() returns a NEW image object
-                img_rgba = img.convert("RGBA")
-                img.close()  # Close original image from Qt buffer
-                
-                # Resize if larger than 128x128
-                if img_rgba.width > 128 or img_rgba.height > 128:
-                    img_rgba.thumbnail((128, 128), Image.Resampling.LANCZOS)
-                
-                # Create a circular mask for rounding
-                size = (img_rgba.width, img_rgba.height)
-                mask = Image.new('L', size, 0)
-                draw = ImageDraw.Draw(mask)
-                draw.ellipse((0, 0) + size, fill=255)
-                
-                # Apply the mask
-                output = ImageOps.fit(img_rgba, mask.size, centering=(0.5, 0.5))
-                output.putalpha(mask)
-                
-                # Define final filename (ALWAYS PNG)
-                cache_filename = f"{order_index}.png"
-                cache_path = self.icon_cache_dir / cache_filename
-                
-                # Clean up any existing files with different extensions for this ID
-                for ext in ['.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg']:
-                    old_file = self.icon_cache_dir / f"{order_index}{ext}"
-                    if old_file.exists():
-                        try:
-                            old_file.unlink()
-                            logger.info(f"Removed old duplicate icon: {old_file}")
-                        except OSError:
-                            pass
-
-                # Save processed image
-                output.save(cache_path, "PNG", optimize=True)
-                
-                # Clean up PIL images
-                output.close()
-                mask.close()
-                img_rgba.close()
-                
-                relative_path = (Path('images') / 'icons' / cache_filename).as_posix()
-                logger.info(f"Sanitized and cached icon: {cache_path}")
-                return relative_path
-
-            except (IOError, SyntaxError, Exception) as e:
-                logger.warning(f"PIL failed to process image from {icon_url}: {e}")
-                return None
-            
-        except requests.RequestException as e:
-            logger.warning(f"Network error downloading icon from {icon_url}: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Error sanitizing icon from {icon_url}: {e}", exc_info=True)
-            return None
-    
     def _update_tokens_in_database(self, tokens: List[Dict[str, Any]]) -> int:
         """
         Update tokens in the database using TokenManager.
@@ -327,54 +177,15 @@ class QtTokenUpdaterService(QtBaseService):
                         self.logger.warning(f"Skipping token without address: {token.get('symbol', 'UNKNOWN')}")
                         continue
                     
-                    # SECURITY: Download and sanitize icon from untrusted URL
-                    # Only download if we don't already have it cached
-                    icon_url = token.get('iconUrl')
-                    order_index = token.get('orderIndex')
-                    
-                    if icon_url and order_index is not None:
-                        # Check if already cached on disk — skip download if so
-                        cache_filename = f"{order_index}.png"
-                        cached_file = self.icon_cache_dir / cache_filename
-                        relative_path = (Path('images') / 'icons' / cache_filename).as_posix()
-                        
-                        if cached_file.exists():
-                            self.logger.debug(f"Icon already cached for {token.get('symbol', 'UNKNOWN')}: {cached_file}")
-                            token['iconLocalPath'] = relative_path
-                        else:
-                            self.logger.debug(f"Processing icon for {token.get('symbol', 'UNKNOWN')} (orderIndex={order_index})")
-                            sanitized_path = self._sanitize_and_cache_icon(
-                                icon_url,
-                                token.get('address'),
-                                order_index
-                            )
-                            
-                            if sanitized_path:
-                                self.logger.debug(f"Icon sanitized and cached: {sanitized_path}")
-                                token['iconLocalPath'] = sanitized_path
-                            else:
-                                self.logger.warning(
-                                    f"Failed to sanitize icon for {token.get('symbol', 'UNKNOWN')} "
-                                    f"from {icon_url}. Will use default icon."
-                                )
+                    # Icon downloading is handled by qt_icon_cache_service.
+                    # This service only updates token metadata (prices, volumes, etc.).
+                    # The icon cache service will pick up any token with icon_url but no icon_local_path.
                     
                     # Use Astrolescent-specific method that handles camelCase → snake_case conversion
                     success = token_manager.insert_or_update_token_from_astrolescent(token)
                     
                     if success:
                         updated_count += 1
-                        # Stamp icon_last_checked_timestamp if we cached an icon
-                        if token.get('iconLocalPath'):
-                            try:
-                                import time as _time
-                                cursor = conn.cursor()
-                                cursor.execute(
-                                    "UPDATE tokens SET icon_last_checked_timestamp = ? WHERE address = ?",
-                                    (int(_time.time()), token.get('address'))
-                                )
-                                conn.commit()
-                            except Exception as ts_err:
-                                self.logger.debug(f"Could not stamp icon timestamp: {ts_err}")
                     else:
                         self.logger.warning(f"Failed to update token: {token.get('address')} ({token.get('symbol')})")
                         
