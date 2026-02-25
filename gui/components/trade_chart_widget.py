@@ -11,25 +11,21 @@ import mplfinance as mpf
 
 
 class ThemedFigureCanvas(FigureCanvas):
-    """FigureCanvas that paints over figure margins after matplotlib renders,
-    preventing any leaked artist rendering from appearing outside the axes."""
+    """FigureCanvas that pre-fills its background before matplotlib renders,
+    guaranteeing no DPI-rounding gaps on any edge."""
 
     _bg_color = QColor('#0f172a')
 
     def paintEvent(self, event):
+        # Paint the full widget background FIRST so that any pixel the
+        # Agg buffer does not cover (typically a 1px strip on the right
+        # or bottom caused by Windows DPI rounding) shows the correct
+        # theme colour instead of stale artefacts.
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), self._bg_color)
+        painter.end()
+        # Now let matplotlib draw the Agg buffer on top.
         super().paintEvent(event)
-        if not self.figure.axes:
-            return
-        # After matplotlib has painted, cover the right margin
-        # to hide any rendering that leaked past the axes clip region.
-        positions = [ax.get_position() for ax in self.figure.axes]
-        right_frac = max(p.x1 for p in positions)
-        w, h = self.width(), self.height()
-        right_px = int(right_frac * w) + 2  # 2px past axes edge to preserve spine
-        if right_px < w:
-            painter = QPainter(self)
-            painter.fillRect(right_px, 0, w - right_px, h, self._bg_color)
-            painter.end()
 
 # --- Matplotlib Style ---
 # Theme colors matching dark_theme.qss
@@ -66,6 +62,13 @@ class TradeChartWidget(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         
+        # Ensure this widget itself paints the theme background so no
+        # parent bleed-through appears in the button/stretch area.
+        self.setAutoFillBackground(True)
+        pal = self.palette()
+        pal.setColor(QPalette.ColorRole.Window, QColor('#0f172a'))
+        self.setPalette(pal)
+        
         # Current timeframe and data
         self.current_timeframe = "10m"
         self.full_dataframe = None
@@ -74,16 +77,9 @@ class TradeChartWidget(QWidget):
         # --- Matplotlib Canvas Setup ---
         self.figure = Figure(figsize=(5, 4), dpi=100, facecolor='#0f172a')  # Theme background
         self.canvas = ThemedFigureCanvas(self.figure)
-        # Fix Windows DPI scaling artifact: matplotlib sets WA_OpaquePaintEvent
-        # which tells Qt "I paint every pixel myself" — but the Agg buffer can be
-        # slightly smaller than the widget due to DPI rounding, leaving stale
-        # candle-colored pixels on the right edge. Clear the attribute so Qt
-        # fills the background (via palette + autoFillBackground) before each paint.
+        # Disable WA_OpaquePaintEvent so our ThemedFigureCanvas.paintEvent
+        # pre-fill is visible; the canvas handles its own background.
         self.canvas.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
-        palette = self.canvas.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor('#0f172a'))
-        self.canvas.setPalette(palette)
-        self.canvas.setAutoFillBackground(True)
         # Set size policy to allow canvas to expand and scale with window
         self.canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.layout.addWidget(self.canvas)
@@ -156,7 +152,8 @@ class TradeChartWidget(QWidget):
         return widths.get(self.current_timeframe, 0.6)
 
     def clear_chart(self):
-        """Clears all items from the chart."""
+        """Clears all items from the chart and resets stored data."""
+        self.full_dataframe = None
         self.figure.clear()
         self.canvas.draw()
 

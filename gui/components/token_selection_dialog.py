@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 # XRD address constant
 RADIX_XRD_ADDRESS = "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
 from config.paths import PACKAGE_ROOT
+from config.app_config import get_absolute_path
 DEFAULT_ICON_PATH = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
 
 
@@ -124,11 +125,8 @@ class TokenSelectionDialog(QDialog):
             # Set icon for the token
             icon_path = token.get('icon_local_path')
             if icon_path:
-                full_path = Path(icon_path)
-                if not full_path.is_absolute():
-                    # Relative path - resolve from project root
-                    full_path = PACKAGE_ROOT / icon_path
-                if full_path.exists():
+                full_path = get_absolute_path(icon_path)
+                if full_path and full_path.exists():
                     item.setIcon(QIcon(str(full_path)))
                 else:
                     item.setIcon(QIcon(str(DEFAULT_ICON_PATH)))

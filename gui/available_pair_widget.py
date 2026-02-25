@@ -8,6 +8,7 @@ from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QStyle
 
+from config.app_config import get_absolute_path
 from .trade_pairs_gui import OverlappingIconWidget
 
 logger = logging.getLogger(__name__)
@@ -117,9 +118,10 @@ class AvailablePairWidget(QWidget):
         pixmap_loaded_locally = False
         pixmap = default_pixmap # Initialize pixmap with default
 
-        if icon_local_path and os.path.exists(icon_local_path):
+        resolved_path = get_absolute_path(icon_local_path) if icon_local_path else None
+        if resolved_path and resolved_path.is_file():
             try:
-                temp_pixmap = QPixmap(icon_local_path)
+                temp_pixmap = QPixmap(str(resolved_path))
                 if not temp_pixmap.isNull():
                     pixmap = temp_pixmap.scaled(self.ICON_SIZE, self.ICON_SIZE, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                     logger.debug(f"Successfully loaded icon for {token_symbol} from local path: {icon_local_path}")

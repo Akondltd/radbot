@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt, QTimer, QRect
 from PySide6.QtGui import QPixmap, QColor
 from pathlib import Path
 from config.paths import PACKAGE_ROOT
+from config.app_config import get_absolute_path
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
@@ -965,8 +966,8 @@ class ActiveTradeInfoPage(QWidget):
         try:
             token_info = self.token_manager.get_token_by_address(token_address)
             if token_info and token_info.get('icon_local_path'):
-                icon_path = PACKAGE_ROOT / token_info['icon_local_path']
-                if icon_path.is_file():
+                icon_path = get_absolute_path(token_info['icon_local_path'])
+                if icon_path and icon_path.is_file():
                     loaded_pixmap = QPixmap(str(icon_path))
                     if not loaded_pixmap.isNull():
                         pixmap = loaded_pixmap

@@ -10,7 +10,8 @@ from functools import partial
 import time
 
 from core.wallet import RadixWallet
-from config.paths import PACKAGE_ROOT 
+from config.paths import PACKAGE_ROOT
+from config.app_config import get_absolute_path
 from .create_trade_ui import Ui_CreateTradeTabMain
 from .trade_pairs_gui import TradePairsManager 
 from .selectable_trade_pair_widget import SelectableTradePairWidget
@@ -194,6 +195,8 @@ class CreateTradeTabMain(QWidget):
     def _show_configure_pairs_page(self):
         """Switch to the Configure Trade Pairs page."""
         self.ui.CreateTradeTabMenu.setCurrentIndex(0)  # ConfigTradePairsSubTab is index 0
+        # Refresh route finder button icons in case they were cached before icons downloaded
+        self._refresh_pool_search_button_icons()
         logger.debug("Switched to Configure Trade Pairs page")
     
     def _show_create_trade_page(self):
@@ -1227,6 +1230,29 @@ class CreateTradeTabMain(QWidget):
                 logger.info("No pair was previously selected, or list was empty.")
             self._update_trade_direction_ui()
 
+    def _refresh_pool_search_button_icons(self):
+        """Re-fetch token data from DB and update the route finder button icons.
+        
+        Called when navigating to the Configure Trade Pairs page so that
+        icons downloaded after the initial _initialize_default_pool_search_tokens
+        call are picked up instead of showing stale placeholders.
+        """
+        try:
+            if self.selected_token_a:
+                fresh = self.token_manager.get_token_by_address(self.selected_token_a.get('address', ''))
+                if fresh:
+                    self.selected_token_a = fresh
+                    self._set_token_button(
+                        self.ui.CreateTradeTabConfigureTradePairsFindPoolsTokenAButton, fresh)
+            if self.selected_token_b:
+                fresh = self.token_manager.get_token_by_address(self.selected_token_b.get('address', ''))
+                if fresh:
+                    self.selected_token_b = fresh
+                    self._set_token_button(
+                        self.ui.CreateTradeTabConfigureTradePairsFindPoolsTokenBButton, fresh)
+        except Exception as e:
+            logger.debug(f"Could not refresh pool search button icons: {e}")
+
     def _initialize_default_pool_search_tokens(self):
         """Initialize the pool search buttons with default tokens (hUSDC and XRD)."""
         try:
@@ -1263,26 +1289,19 @@ class CreateTradeTabMain(QWidget):
         button.setText(f"  {symbol}")  # Add spacing for icon
         
         # Set icon
+        default_icon = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
         icon_path = token.get('icon_local_path')
         if icon_path:
-            full_path = Path(icon_path)
-            if not full_path.is_absolute():
-                full_path = PACKAGE_ROOT / icon_path
-            if full_path.exists():
+            full_path = get_absolute_path(icon_path)
+            if full_path and full_path.exists():
                 button.setIcon(QIcon(str(full_path)))
                 button.setIconSize(QSize(20, 20))
-            else:
-                # Use default icon
-                default_icon = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
-                if default_icon.exists():
-                    button.setIcon(QIcon(str(default_icon)))
-                    button.setIconSize(QSize(20, 20))
-        else:
-            # Use default icon
-            default_icon = PACKAGE_ROOT / 'images' / 'default_token_icon.png'
-            if default_icon.exists():
+            elif default_icon.exists():
                 button.setIcon(QIcon(str(default_icon)))
                 button.setIconSize(QSize(20, 20))
+        elif default_icon.exists():
+            button.setIcon(QIcon(str(default_icon)))
+            button.setIconSize(QSize(20, 20))
 
     def _on_token_a_button_clicked(self):
         """Handle Token A button click - show token selection dialog (excludes XRD)."""

@@ -61,9 +61,10 @@ config/*.c
 *.manifest
 version.rc
 
-# Thimblefairy (separate project)
+# Separate projects
 thimblefairy/
 wtahtaw/
+html/
 
 # Old/deprecated config
 config/old/
