@@ -136,9 +136,6 @@ class ConfigLoader:
                 "manual": {
                     "adx_threshold": 25,
                     "adx_period": 14
-                },
-                "ping_pong": {
-                    "price_tolerance": 0.00
                 }
             }
         }

@@ -40,9 +40,6 @@
             "execution_threshold": 0.80,    // Minimum signal strength to execute (0-1, higher = more selective)
             "confidence_threshold": 0.85,   // Minimum confidence level required (0-1, higher = more certain)
             "min_flip_interval_minutes": 60 // Cooldown period between flips (prevents rapid oscillation)
-        },
-        "ping_pong": {
-            "price_tolerance": 0.00         // % tolerance for price validation
         }
     },
     "web_dashboard": {
