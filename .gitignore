@@ -25,6 +25,9 @@ ENV/
 *~
 .windsurf/
 
+# Test/generated icons
+images/icons/
+
 # Runtime data
 data/*.db
 data/*.db-journal
