@@ -26,6 +26,7 @@ ENV/
 .windsurf/
 
 # Runtime data
+data/*.db
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
@@ -38,6 +39,8 @@ fatal_crash.log
 # Config with secrets
 .env
 *.env.local
+config/dashboard_cert.pem
+config/dashboard_key.pem
 
 # Wallet files (sensitive - root level only)
 /*_wallet*.json

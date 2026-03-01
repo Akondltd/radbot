@@ -6,10 +6,12 @@ Configured via advanced_config.json → web_dashboard section.
 Disabled by default; requires a password to be set before it will start.
 """
 import asyncio
+import ipaddress
 import json
 import logging
 import secrets
 import sqlite3
+import ssl
 import threading
 import time
 from datetime import datetime, timedelta
@@ -17,9 +19,13 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from aiohttp import web
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from config.advanced_config import AdvancedConfig
-from config.paths import DATABASE_PATH
+from config.paths import CONFIG_DIR, DATABASE_PATH, USER_CONFIG
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +61,7 @@ class WebDashboardService:
         if not self.password:
             logger.warning(
                 "Web dashboard enabled but no password set — refusing to start. "
-                "Set web_dashboard.password in config/advanced_config.json"
+                f"Set web_dashboard.password in {USER_CONFIG}"
             )
             return
 
@@ -101,9 +107,65 @@ class WebDashboardService:
 
         self._runner = web.AppRunner(app)
         await self._runner.setup()
-        self._site = web.TCPSite(self._runner, '0.0.0.0', self.port)
+
+        ssl_ctx = self._get_ssl_context()
+        self._site = web.TCPSite(self._runner, '0.0.0.0', self.port, ssl_context=ssl_ctx)
         await self._site.start()
-        logger.info("Web dashboard running on http://0.0.0.0:%d", self.port)
+        logger.info("Web dashboard running on https://0.0.0.0:%d", self.port)
+
+    # ------------------------------------------------------------------
+    # SSL certificate management
+    # ------------------------------------------------------------------
+    def _get_ssl_context(self) -> ssl.SSLContext:
+        """Build an SSL context, generating a self-signed cert if needed."""
+        cert_path = CONFIG_DIR / "dashboard_cert.pem"
+        key_path = CONFIG_DIR / "dashboard_key.pem"
+
+        if not cert_path.exists() or not key_path.exists():
+            self._generate_self_signed_cert(cert_path, key_path)
+
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.load_cert_chain(str(cert_path), str(key_path))
+        return ctx
+
+    @staticmethod
+    def _generate_self_signed_cert(cert_path: Path, key_path: Path):
+        """Generate a self-signed certificate valid for 10 years."""
+        logger.info("Generating self-signed SSL certificate for web dashboard...")
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+        subject = issuer = x509.Name([
+            x509.NameAttribute(NameOID.COMMON_NAME, "RadBot Dashboard"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "RadBot"),
+        ])
+
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.utcnow())
+            .not_valid_after(datetime.utcnow() + timedelta(days=3650))
+            .add_extension(
+                x509.SubjectAlternativeName([
+                    x509.DNSName("localhost"),
+                    x509.IPAddress(ipaddress.IPv4Address("127.0.0.1")),
+                ]),
+                critical=False,
+            )
+            .sign(key, hashes.SHA256())
+        )
+
+        key_path.write_bytes(
+            key.private_bytes(
+                serialization.Encoding.PEM,
+                serialization.PrivateFormat.TraditionalOpenSSL,
+                serialization.NoEncryption(),
+            )
+        )
+        cert_path.write_bytes(cert.public_bytes(serialization.Encoding.PEM))
+        logger.info("SSL certificate generated: %s", cert_path)
 
     # ------------------------------------------------------------------
     # Authentication
@@ -150,7 +212,7 @@ class WebDashboardService:
             })
             resp.set_cookie(
                 'radbot_session', token,
-                max_age=_SESSION_TTL, httponly=True, samesite='Strict'
+                max_age=_SESSION_TTL, httponly=True, secure=True, samesite='Strict'
             )
             return resp
 

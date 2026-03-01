@@ -4,6 +4,103 @@
 
 ---
 
+## Web Dashboard (Remote Monitoring)
+
+### What It Does
+
+The Web Dashboard lets you monitor your Radbot instance from any device with a browser — your phone, a tablet, or another computer on the same network. It provides a read-only view of your trading activity, so you can check on things without needing to sit in front of the machine running Radbot.
+
+**What you can see:**
+- **Wallet summary** — Total portfolio value and overall profit/loss
+- **Profit/Loss chart** — 30-day history showing daily gains and losses
+- **Token distribution** — Doughnut chart of your wallet holdings
+- **Trading volume** — 30-day bar chart of daily trade volume
+- **Trade statistics** — Trades created, cancelled, profitable/unprofitable, tokens traded, most profitable strategy
+- **Active trades** — Live table of all running trades with hover tooltips showing full detail
+- **Recent activity** — Log of recent successful trade flips
+
+The dashboard auto-refreshes on a configurable interval (default: every 2 minutes).
+
+### How to Set It Up
+
+1. Open `advanced_config.json` in your config directory
+   - **Installed via pip:** Located in your user data folder (e.g. `%LOCALAPPDATA%\radbot\config\` on Windows, `~/.local/share/radbot/config/` on Linux/Mac)
+   - **Running from source:** Located in the `config/` folder next to `main.py`
+2. Find the `web_dashboard` section
+3. Set `enabled` to `true`
+4. Set a `password` (required — the dashboard won't start without one)
+5. Optionally change the `port` (default: 8585)
+6. **Restart Radbot** for changes to take effect
+
+**Example configuration:**
+```json
+"web_dashboard": {
+    "enabled": true,
+    "port": 8585,
+    "password": "your_secure_password_here",
+    "poll_interval_seconds": 120
+}
+```
+
+### Accessing the Dashboard
+
+Once enabled, open a browser and go to:
+
+```text
+https://<your-ip-address>:8585
+```
+
+- **Same machine:** `https://localhost:8585` or `https://127.0.0.1:8585`
+- **Another device on your network:** Use the machine's local IP (e.g. `https://192.168.1.50:8585`)
+
+**First-time browser warning:** Because the dashboard uses a self-signed SSL certificate, your browser will show a "Your connection is not private" warning the first time you visit. This is normal and expected for self-hosted tools. Click **Advanced** → **Proceed** (or **Accept the Risk** in Firefox) to continue. You only need to do this once per browser.
+
+You'll then see a login screen. Enter the password you set in the config file.
+
+### Security
+
+- **HTTPS encrypted** — All traffic between your browser and the dashboard is encrypted, including your password. Radbot auto-generates a self-signed SSL certificate on first startup and stores it in your config directory (`dashboard_cert.pem` and `dashboard_key.pem`). The certificate is valid for 10 years and requires no maintenance.
+- **Password protected** — No one can view your dashboard without the password
+- **Read-only** — The dashboard cannot create, modify, or cancel trades
+- **Session-based** — Login sessions last 24 hours before requiring re-authentication
+- **Local network only** — By default, only devices on your local network can reach it. Exposing it to the internet requires port forwarding on your router and is safe to do thanks to HTTPS encryption, but only recommended if you've set a strong password
+
+### Configuration Options
+
+| Setting                  | Default | Description                                   |
+|--------------------------|---------|-----------------------------------------------|
+| `enabled`                | `false` | Must be `true` to start the dashboard         |
+| `port`                   | `8585`  | Port the web server listens on                |
+| `password`               | `""`    | Required — set before enabling                |
+| `poll_interval_seconds`  | `120`   | How often the page refreshes data (seconds)   |
+
+### Troubleshooting
+
+**Dashboard won't start:**
+
+- Check that `enabled` is `true` and `password` is not empty
+- Check the log file for errors mentioning "WebDashboard"
+- Make sure nothing else is using port 8585 (or change the port)
+
+**Browser shows a security warning:**
+
+- This is expected with self-signed certificates — click through to proceed
+- You only need to accept the warning once per browser
+
+**Can't connect from another device:**
+
+- Ensure both devices are on the same network
+- Use the host machine's local IP, not `localhost`
+- Make sure you're using `https://` not `http://`
+- Check your firewall isn't blocking the port
+
+**Data looks stale:**
+
+- The dashboard polls at the interval you configured — wait for the next refresh
+- You can manually refresh the browser page at any time
+
+---
+
 ## Stop Loss Protection
 
 ### What It Does

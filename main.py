@@ -48,6 +48,11 @@ def main():
     logging.info("--- main() function entered ---")
     logging.info("App started")
 
+    # Ensure user-writable directories exist early (before any config/db access).
+    # For pip installs, this also seeds the default advanced_config.json on first run.
+    from config.paths import ensure_dirs
+    ensure_dirs()
+
     try:
         app = QApplication(sys.argv)
         
@@ -55,7 +60,8 @@ def main():
         # This prevents Python apps from being grouped under the Python icon
         try:
             import ctypes
-            myappid = 'radixdlt.radbot.dexbot.1.0.15'  # Arbitrary string (company.product.subproduct.version)
+            from version import __version__
+            myappid = f'radixdlt.radbot.dexbot.{__version__}'  # Arbitrary string (company.product.subproduct.version)
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         except Exception as e:
             logging.debug(f"Could not set AppUserModelID (non-Windows or error): {e}")
