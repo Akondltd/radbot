@@ -34,6 +34,7 @@ class ActiveTradeListItemWidget(QWidget):
         trade_token_address = trade_data.get('trade_token_address')
         trade_token_info = self.token_manager.get_token_by_address(trade_token_address) if trade_token_address else None
         trade_token_symbol = trade_token_info.get('symbol', '') if trade_token_info else ''
+        accumulation_token_symbol = trade_data.get('accumulation_token_symbol', '')
         
         # Format amount to max 8 decimal places, strip trailing zeros
         try:
@@ -87,7 +88,7 @@ class ActiveTradeListItemWidget(QWidget):
         # Profit label with color coding
         self.profit_label = QLabel(profit_text)
         self.profit_label.setStyleSheet(f"color: {profit_color}; font-weight: bold;")
-        self.profit_label.setToolTip(f"Total profit: {profit_text} {trade_token_symbol}")
+        self.profit_label.setToolTip(f"Total profit: {profit_text} {accumulation_token_symbol}")
         
         self.state_label = QLabel(state_text)
         

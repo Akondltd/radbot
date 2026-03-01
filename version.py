@@ -9,5 +9,5 @@ Single source of truth for version info used by:
 """
 
 __app_name__ = "RadBot"
-__version__ = "1.0.15"
+__version__ = "1.0.16"
 __subtitle__ = "Radix Aggregated DEX Trading Bot"

@@ -55,7 +55,7 @@ def main():
         # This prevents Python apps from being grouped under the Python icon
         try:
             import ctypes
-            myappid = 'radixdlt.radbot.dexbot.1.0'  # Arbitrary string (company.product.subproduct.version)
+            myappid = 'radixdlt.radbot.dexbot.1.0.15'  # Arbitrary string (company.product.subproduct.version)
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         except Exception as e:
             logging.debug(f"Could not set AppUserModelID (non-Windows or error): {e}")
@@ -73,16 +73,6 @@ def main():
         from gui.splash_screen import RadBotSplashScreen
         splash = RadBotSplashScreen()
         splash.show()
-        splash.update_status("Running security checks...")
-
-        # Run lightweight security check (non-blocking)
-        try:
-            from security.startup_check import DependencyVerifier
-            verifier = DependencyVerifier()
-            if not verifier.verify_packages():
-                logging.warning("Package verification detected changes. Run 'python security/startup_check.py --reset' if you updated packages.")
-        except Exception as e:
-            logging.debug(f"Security check skipped: {e}")
 
         splash.update_status("Loading application modules...")
 

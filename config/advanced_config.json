@@ -44,5 +44,11 @@
         "ping_pong": {
             "price_tolerance": 0.00         // % tolerance for price validation
         }
+    },
+    "web_dashboard": {
+        "enabled": false,                   // Enable the remote web dashboard
+        "port": 8585,                       // Port for the web dashboard server
+        "password": "",                     // Password required to view dashboard (set before enabling)
+        "poll_interval_seconds": 120        // How often the dashboard auto-refreshes (seconds)
     }
 }

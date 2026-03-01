@@ -24,6 +24,7 @@ from services.qt_ui_refresh_service import QtUIRefreshService
 from services.ai_optimization_service import QtAIOptimizationService
 from services.token_updater_service import QtTokenUpdaterService
 from services.trade_monitor import TradeMonitor
+from services.web_dashboard_service import WebDashboardService
 from services.service_coordinator import ServiceCoordinator, ServiceCategory
 from services.task_coordinator import TaskPriority
 from database.database import Database
@@ -126,6 +127,10 @@ class TradingBotMainWindow(QMainWindow):
         self.service_coordinator.start_all()
         
         logger.info("ServiceCoordinator initialized with %d services", len(self.service_coordinator.services))
+        
+        # Start web dashboard (independent of ServiceCoordinator — runs its own aiohttp server)
+        self.web_dashboard = WebDashboardService()
+        self.web_dashboard.start()
 
     def init_logic(self):
         # Connect wallet update signals
@@ -241,6 +246,10 @@ class TradingBotMainWindow(QMainWindow):
     def closeEvent(self, event):
         """Handle the window close event to stop background services."""
         logger.info("Application closing, stopping all services...")
+        
+        # Stop web dashboard
+        if hasattr(self, 'web_dashboard') and self.web_dashboard:
+            self.web_dashboard.stop()
         
         # Stop trade monitor first
         if self.trade_monitor:
