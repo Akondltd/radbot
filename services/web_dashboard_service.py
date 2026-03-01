@@ -674,6 +674,7 @@ class WebDashboardService:
                     th.usd_value,
                     th.status,
                     th.strategy_name,
+                    th.transaction_hash,
                     th.profit,
                     th.profit_usd,
                     th.profit_xrd,
@@ -695,6 +696,7 @@ class WebDashboardService:
                 except (ValueError, TypeError, OSError):
                     dt = str(r.get('created_at', ''))
 
+                tx_hash = r.get('transaction_hash', '') or ''
                 activity.append({
                     'trade_id': r.get('trade_id', 0),
                     'pair': r.get('pair', ''),
@@ -704,6 +706,7 @@ class WebDashboardService:
                     'price': round(float(r.get('price', 0) or 0), 6),
                     'usd_value': round(float(r.get('usd_value', 0) or 0), 2),
                     'strategy': r.get('strategy_name', ''),
+                    'tx_hash': tx_hash,
                     'profit': r.get('profit', ''),
                     'profit_usd': round(float(r.get('profit_usd', 0) or 0), 2),
                     'profit_xrd': round(float(r.get('profit_xrd', 0) or 0), 4),
@@ -863,6 +866,8 @@ tbody td{padding:8px 10px;white-space:nowrap}
 .activity-side.SELL{background:rgba(239,68,68,.15);color:var(--red)}
 .activity-details{flex:1;display:flex;justify-content:space-between;align-items:center}
 .activity-pair{font-weight:600}
+.activity-tx{color:#60a5fa;text-decoration:none;font-size:.72rem;font-family:monospace;opacity:.8;transition:opacity .15s}
+.activity-tx:hover{opacity:1;text-decoration:underline}
 .activity-profit{font-weight:600}
 .activity-time{color:var(--muted);font-size:.72rem;width:110px;text-align:right}
 
@@ -1080,10 +1085,10 @@ function initCharts() {
   // Profit chart (line)
   profitChart = new Chart(document.getElementById('profit-chart'), {
     type: 'line',
-    data: { labels: Array.from({length:30},(_,i)=>i+1), datasets: [{
+    data: { labels: Array.from({length:30},(_,i)=>30-i), datasets: [{
       data: [], fill: true,
       borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.12)',
-      borderWidth: 2, pointRadius: 0, tension: 0.3
+      borderWidth: 2, pointRadius: 2, pointHoverRadius: 6, tension: 0.3
     }]},
     options: chartOpts(gridColor, tickColor)
   });
@@ -1104,7 +1109,7 @@ function initCharts() {
   // Volume chart (bar)
   volumeChart = new Chart(document.getElementById('volume-chart'), {
     type: 'bar',
-    data: { labels: Array.from({length:30},(_,i)=>i+1), datasets: [{
+    data: { labels: Array.from({length:30},(_,i)=>30-i), datasets: [{
       data: [], backgroundColor: 'rgba(13,110,253,.6)',
       borderColor: '#0d6efd', borderWidth: 1, borderRadius: 3
     }]},
@@ -1115,9 +1120,10 @@ function initCharts() {
 function chartOpts(gridColor, tickColor) {
   return {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }},
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false }},
     scales: {
-      x: { grid: {color: gridColor}, ticks: {color: tickColor, maxTicksLimit: 10, font:{size:10}}},
+      x: { grid: {color: gridColor}, ticks: {color: tickColor, maxTicksLimit: 10, font:{size:10}}, title: {display: true, text: 'Days Ago', color: tickColor, font:{size:10}}},
       y: { grid: {color: gridColor}, ticks: {color: tickColor, font:{size:10}}}
     }
   };
@@ -1210,10 +1216,13 @@ function renderActivity(items) {
   container.innerHTML = items.map(a => {
     const profitColor = a.profit_xrd > 0 ? 'color:var(--green)' : a.profit_xrd < 0 ? 'color:var(--red)' : '';
     const profitText = a.profit || '';
+    const txShort = a.tx_hash ? a.tx_hash.substring(0, 12) + '...' : '';
+    const txLink = a.tx_hash ? `<a href="https://dashboard.radixdlt.com/transaction/${a.tx_hash}/summary" target="_blank" rel="noopener" class="activity-tx">${txShort}</a>` : '';
     return `<div class="activity-item">
       <span class="activity-side ${a.side}">${a.side}</span>
       <div class="activity-details">
         <span class="activity-pair">${a.pair}</span>
+        ${txLink}
         <span class="activity-profit" style="${profitColor}">${profitText}</span>
       </div>
       <span class="activity-time">${a.timestamp}</span>
