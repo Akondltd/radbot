@@ -1196,7 +1196,6 @@ function showTooltip(e, idx) {
     <div class="tt-row"><span class="tt-label">Start Position</span><span class="tt-value">${t.start_amount} ${t.start_token}</span></div>
     <div class="tt-row"><span class="tt-label">Accumulating</span><span class="tt-value">${t.accumulation_token}</span></div>
     <div class="tt-row"><span class="tt-label">Profit</span><span class="tt-value" style="${profitStyle}">${t.profit} ${t.accumulation_token}</span></div>
-    <div class="tt-row"><span class="tt-label">Peak Profit</span><span class="tt-value">${t.peak_profit_xrd} XRD</span></div>
     <div class="tt-row"><span class="tt-label">Volume</span><span class="tt-value">${t.trade_volume} XRD</span></div>
     <div class="tt-row"><span class="tt-label">Flips</span><span class="tt-value">${t.times_flipped} (${t.profitable_flips}W / ${t.unprofitable_flips}L)</span></div>
     <div class="tt-row"><span class="tt-label">Signal</span><span class="tt-value">${t.current_signal || 'hold'}</span></div>
@@ -1220,9 +1219,7 @@ function hideTooltip() { tooltip.classList.remove('show'); }
 /* ── Activity Log ───────────────────────────────────────── */
 function renderActivity(items) {
   const container = document.getElementById('activity-list');
-  const empty = document.getElementById('activity-empty');
-  if (!items.length) { container.innerHTML = ''; container.appendChild(empty); empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
+  if (!items.length) { container.innerHTML = '<div class="empty-state">No recent activity</div>'; return; }
   container.innerHTML = items.map(a => {
     const profitColor = a.profit_xrd > 0 ? 'color:var(--green)' : a.profit_xrd < 0 ? 'color:var(--red)' : '';
     const profitText = a.profit || '';
