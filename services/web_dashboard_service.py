@@ -230,7 +230,7 @@ class WebDashboardService:
         if not self._check_auth(request):
             return web.json_response({'error': 'Unauthorized'}, status=401)
         try:
-            data = self._get_dashboard_data()
+            data = await asyncio.to_thread(self._get_dashboard_data)
             return web.json_response(data)
         except Exception as e:
             logger.error("Dashboard API error: %s", e, exc_info=True)
@@ -240,7 +240,7 @@ class WebDashboardService:
         if not self._check_auth(request):
             return web.json_response({'error': 'Unauthorized'}, status=401)
         try:
-            data = self._get_trades_data()
+            data = await asyncio.to_thread(self._get_trades_data)
             return web.json_response(data)
         except Exception as e:
             logger.error("Trades API error: %s", e, exc_info=True)
@@ -250,7 +250,7 @@ class WebDashboardService:
         if not self._check_auth(request):
             return web.json_response({'error': 'Unauthorized'}, status=401)
         try:
-            data = self._get_activity_data()
+            data = await asyncio.to_thread(self._get_activity_data)
             return web.json_response(data)
         except Exception as e:
             logger.error("Activity API error: %s", e, exc_info=True)
@@ -1042,7 +1042,11 @@ async function refreshAll() {
     const [dashRes, tradesRes, actRes] = await Promise.all([
       fetch('/api/dashboard'), fetch('/api/trades'), fetch('/api/activity')
     ]);
-    if (dashRes.status === 401) { doLogout(); return; }
+    if (dashRes.status === 401 || tradesRes.status === 401 || actRes.status === 401) { doLogout(); return; }
+    if (!dashRes.ok || !tradesRes.ok || !actRes.ok) {
+      document.getElementById('last-update').textContent = 'Refresh error ' + new Date().toLocaleTimeString();
+      return;
+    }
     const dash = await dashRes.json();
     const trades = await tradesRes.json();
     const act = await actRes.json();
@@ -1052,6 +1056,7 @@ async function refreshAll() {
     document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (ex) {
     console.error('Refresh error:', ex);
+    document.getElementById('last-update').textContent = 'Refresh failed ' + new Date().toLocaleTimeString();
   }
 }
 
