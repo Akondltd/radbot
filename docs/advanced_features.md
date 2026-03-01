@@ -64,6 +64,7 @@ You'll then see a login screen. Enter the password you set in the config file.
 - **Read-only** — The dashboard cannot create, modify, or cancel trades
 - **Session-based** — Login sessions last 24 hours before requiring re-authentication
 - **Local network only** — By default, only devices on your local network can reach it. Exposing it to the internet requires port forwarding on your router and is safe to do thanks to HTTPS encryption, but only recommended if you've set a strong password
+- **Hosted VM** — You could use a cloud server to run Radbot and access its dashboard from any device with a browser.
 
 ### Configuration Options
 

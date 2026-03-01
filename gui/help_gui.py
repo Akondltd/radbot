@@ -193,6 +193,7 @@ class HelpTabMain(QWidget):
         html_lines = []
         in_code_block = False
         in_list = False
+        in_table = False
         list_type = None  # 'ul' or 'ol'
 
         for line in lines:
@@ -216,6 +217,34 @@ class HelpTabMain(QWidget):
                 continue
 
             stripped = line.strip()
+
+            # Table rows (lines starting and ending with |)
+            if stripped.startswith('|') and stripped.endswith('|'):
+                cells = [c.strip() for c in stripped.strip('|').split('|')]
+                # Skip separator rows like |---|---|---|
+                if all(re.match(r'^:?-+:?$', c) for c in cells):
+                    continue
+                if not in_table:
+                    if in_list:
+                        html_lines.append(f'</{list_type}>')
+                        in_list = False
+                    html_lines.append('<table>')
+                    html_lines.append('<thead><tr>')
+                    for cell in cells:
+                        html_lines.append(f'<th>{_inline_format(cell)}</th>')
+                    html_lines.append('</tr></thead><tbody>')
+                    in_table = True
+                else:
+                    html_lines.append('<tr>')
+                    for cell in cells:
+                        html_lines.append(f'<td>{_inline_format(cell)}</td>')
+                    html_lines.append('</tr>')
+                continue
+
+            # Close table if non-table line
+            if in_table:
+                html_lines.append('</tbody></table>')
+                in_table = False
 
             # Horizontal rule
             if re.match(r'^---+$', stripped) or re.match(r'^\*\*\*+$', stripped):
@@ -290,6 +319,8 @@ class HelpTabMain(QWidget):
             html_lines.append('</pre>')
         if in_list:
             html_lines.append(f'</{list_type}>')
+        if in_table:
+            html_lines.append('</tbody></table>')
 
         return '\n'.join(html_lines)
 
