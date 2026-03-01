@@ -577,20 +577,18 @@ class WebDashboardService:
                     t.current_signal,
                     t.last_signal_updated_at,
                     t.created_at,
-                    t.buy_price,
-                    t.sell_price,
                     t.trade_volume,
                     t.peak_profit_xrd,
                     tp.base_token,
                     tp.quote_token,
-                    base.symbol AS base_token_symbol,
-                    quote.symbol AS quote_token_symbol,
-                    start_tok.symbol AS start_token_symbol
+                    COALESCE(base.symbol, t.trade_token_symbol, '?') AS base_token_symbol,
+                    COALESCE(quote.symbol, '?') AS quote_token_symbol,
+                    COALESCE(start_tok.symbol, t.start_token_symbol, '?') AS start_token_symbol
                 FROM trades t
-                JOIN trade_pairs tp ON t.trade_pair_id = tp.trade_pair_id
-                JOIN tokens base ON tp.base_token = base.address
-                JOIN tokens quote ON tp.quote_token = quote.address
-                JOIN tokens start_tok ON t.start_token_address = start_tok.address
+                LEFT JOIN trade_pairs tp ON t.trade_pair_id = tp.trade_pair_id
+                LEFT JOIN tokens base ON tp.base_token = base.address
+                LEFT JOIN tokens quote ON tp.quote_token = quote.address
+                LEFT JOIN tokens start_tok ON t.start_token_address = start_tok.address
                 WHERE t.wallet_address = ?
                 ORDER BY t.created_at DESC
             """, (ctx['wallet_address'],))
@@ -644,8 +642,6 @@ class WebDashboardService:
                     'unprofitable_flips': r.get('unprofitable_flips', 0) or 0,
                     'current_signal': r.get('current_signal', 'hold'),
                     'last_signal_at': r.get('last_signal_updated_at', ''),
-                    'buy_price': r.get('buy_price', ''),
-                    'sell_price': r.get('sell_price', ''),
                     'trade_volume': round(float(r.get('trade_volume', 0) or 0), 2),
                     'peak_profit_xrd': round(float(r.get('peak_profit_xrd', 0) or 0), 4),
                     'created_at': r.get('created_at', ''),
@@ -1189,8 +1185,6 @@ function showTooltip(e, idx) {
     <div class="tt-row"><span class="tt-label">Flips</span><span class="tt-value">${t.times_flipped} (${t.profitable_flips}W / ${t.unprofitable_flips}L)</span></div>
     <div class="tt-row"><span class="tt-label">Signal</span><span class="tt-value">${t.current_signal || 'hold'}</span></div>
     <div class="tt-row"><span class="tt-label">Last Signal</span><span class="tt-value">${t.last_signal_at || '—'}</span></div>
-    ${t.buy_price ? `<div class="tt-row"><span class="tt-label">Buy Price</span><span class="tt-value">${t.buy_price}</span></div>` : ''}
-    ${t.sell_price ? `<div class="tt-row"><span class="tt-label">Sell Price</span><span class="tt-value">${t.sell_price}</span></div>` : ''}
     <div class="tt-row"><span class="tt-label">Created</span><span class="tt-value">${t.created_at || '—'}</span></div>
   `;
   tooltip.classList.add('show');
