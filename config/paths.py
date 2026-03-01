@@ -40,6 +40,7 @@ else:
 # ── Derived paths ──
 DATA_DIR = USER_DATA_DIR / "data"
 LOGS_DIR = USER_DATA_DIR / "logs"
+CONFIG_DIR = USER_DATA_DIR / "config"
 DATABASE_NAME = "radbot.db"
 DATABASE_PATH = DATA_DIR / DATABASE_NAME
 
@@ -49,7 +50,21 @@ DOCS_DIR = PACKAGE_ROOT / "docs"
 LIBS_DIR = PACKAGE_ROOT / "libs"
 STYLES_DIR = PACKAGE_ROOT / "gui" / "styling"
 
+# ── Bundled config (shipped inside the package) ──
+_BUNDLED_CONFIG = PACKAGE_ROOT / "config" / "advanced_config.json"
+USER_CONFIG = CONFIG_DIR / "advanced_config.json"
+
+
 def ensure_dirs():
     """Create writable directories if they don't exist."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    _seed_config()
+
+
+def _seed_config():
+    """Copy bundled advanced_config.json to USER_DATA_DIR on first run."""
+    if not USER_CONFIG.exists() and _BUNDLED_CONFIG.exists():
+        import shutil
+        shutil.copy2(_BUNDLED_CONFIG, USER_CONFIG)

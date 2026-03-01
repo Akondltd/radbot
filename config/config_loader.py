@@ -11,6 +11,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from config.paths import USER_CONFIG
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +35,7 @@ class ConfigLoader:
     
     def reload(self) -> None:
         """(Re)load configuration from file."""
-        config_path = Path(__file__).parent / "advanced_config.json"
+        config_path = USER_CONFIG
         
         try:
             with open(config_path, 'r', encoding='utf-8') as f:

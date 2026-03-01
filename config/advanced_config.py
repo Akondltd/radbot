@@ -2,11 +2,13 @@ import json
 import os
 from typing import Dict, Any
 
+from config.paths import USER_CONFIG
+
 class AdvancedConfig:
     def __init__(self, config_path: str = None):
         """Load advanced configuration settings"""
         if config_path is None:
-            config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'advanced_config.json')
+            config_path = str(USER_CONFIG)
         
         self.config_path = config_path
         self._config = self._load_config()
