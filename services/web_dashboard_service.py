@@ -1038,30 +1038,21 @@ function startPolling() { pollTimer = setInterval(refreshAll, pollInterval * 100
 function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
 
 async function refreshAll() {
-  const ts = new Date().toLocaleTimeString();
-  let step = 'fetch';
   try {
     const [dashRes, tradesRes, actRes] = await Promise.all([
       fetch('/api/dashboard'), fetch('/api/trades'), fetch('/api/activity')
     ]);
     if (dashRes.status === 401 || tradesRes.status === 401 || actRes.status === 401) { doLogout(); return; }
-    if (!dashRes.ok || !tradesRes.ok || !actRes.ok) {
-      console.error('Refresh HTTP error:', dashRes.status, tradesRes.status, actRes.status);
-      document.getElementById('last-update').textContent = 'Refresh error (HTTP) ' + ts;
-      return;
-    }
-    step = 'parse';
+    if (!dashRes.ok || !tradesRes.ok || !actRes.ok) return;
     const dash = await dashRes.json();
     const trades = await tradesRes.json();
     const act = await actRes.json();
-    step = 'render';
     renderDashboard(dash);
     renderTrades(trades.trades || []);
     renderActivity(act.activity || []);
-    document.getElementById('last-update').textContent = 'Updated ' + ts;
+    document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (ex) {
-    console.error('Refresh error at ' + step + ':', ex);
-    document.getElementById('last-update').textContent = 'Refresh failed (' + step + ') ' + ts;
+    console.error('Refresh error:', ex);
   }
 }
 
