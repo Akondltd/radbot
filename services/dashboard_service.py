@@ -194,14 +194,31 @@ class DashboardDataService:
                 # Use gray for "Others"
                 token_distribution.append(("Others", others_percentage, QColor(149, 165, 166)))
             
+            # Look up XRD price in USD
+            xrd_usd_price = 0.0
+            try:
+                cursor.execute(
+                    "SELECT token_price_usd FROM tokens WHERE address = ? LIMIT 1",
+                    ("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",)
+                )
+                row = cursor.fetchone()
+                if row and row[0]:
+                    xrd_usd_price = float(row[0])
+            except Exception:
+                pass
+
+            wallet_value_usd = total_value_xrd * xrd_usd_price
+
             return {
                 "wallet_value": f"{int(total_value_xrd)} XRD",
+                "wallet_value_usd": f"${wallet_value_usd:,.2f} USD",
                 "token_distribution": token_distribution
             }
         except Exception as e:
             logger.exception(f"Error getting wallet tokens: {e}")
             return {
                 "wallet_value": "N/A",
+                "wallet_value_usd": "$0.00 USD",
                 "token_distribution": [
                     ("XRD", 65, QColor(46, 204, 113)),
                     ("BTC", 20, QColor(52, 152, 219)),
@@ -485,6 +502,7 @@ class DashboardDataService:
         
         # Summary data
         wallet_value = f"{random.randint(1000, 5000)} XRD"
+        wallet_value_usd = f"${random.randint(50, 250):,} USD"
         profit = f"{random.randint(100, 1000)} XRD"
         active_trades = random.randint(0, 10)
         win_ratio = f"{random.uniform(50.0, 95.0):.2f} %"
@@ -492,6 +510,7 @@ class DashboardDataService:
         return {
             # Summary data
             "wallet_value": wallet_value,
+            "wallet_value_usd": wallet_value_usd,
             "profit": profit,
             "active_trades": active_trades,
             "win_ratio": win_ratio,

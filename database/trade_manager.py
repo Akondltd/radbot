@@ -968,7 +968,7 @@ class TradeManager:
                     profit_usd = 0.0
                     profit_xrd = 0.0
                     
-                    XRD_ADDRESS = "resource_rdx1tknxxxxxxxxxradaborxxxxxxxxxxx007685388597"
+                    XRD_ADDRESS = "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
                     
                     token_price_xrd = 0.0
                     token_price_usd = 0.0

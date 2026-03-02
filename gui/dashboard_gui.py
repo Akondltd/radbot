@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, 
     QSizePolicy, QGridLayout
 )
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QEvent
 from PySide6.QtGui import QFont, QColor
 
 from gui.components.profit_loss_chart import ProfitLossChart
@@ -26,6 +26,10 @@ class DashboardTabMain(QWidget):
         # Store references to labels for dynamic font sizing
         self.summary_title_labels = []
         self.summary_value_labels = []
+        
+        # Wallet value hover state
+        self._wallet_value_xrd = "0 XRD"
+        self._wallet_value_usd = "$0.00 USD"
         
         # Create and setup UI
         self.setup_ui()
@@ -98,6 +102,12 @@ class DashboardTabMain(QWidget):
             item_layout.addWidget(value_label)
             summary_layout.addLayout(item_layout, 0, col)
         
+        # Install hover event filter on wallet value label
+        wallet_label = self.findChild(QLabel, "summary_wallet_value")
+        if wallet_label:
+            wallet_label.setAttribute(Qt.WA_Hover, True)
+            wallet_label.installEventFilter(self)
+        
         # Add summary frame to container
         container_layout.addWidget(self.summary_frame)
         
@@ -148,6 +158,17 @@ class DashboardTabMain(QWidget):
             font.setBold(True)
             label.setFont(font)
     
+    def eventFilter(self, obj, event):
+        """Handle hover events on the wallet value label"""
+        if obj.objectName() == "summary_wallet_value":
+            if event.type() == QEvent.Enter:
+                obj.setText(self._wallet_value_usd)
+                return True
+            elif event.type() == QEvent.Leave:
+                obj.setText(self._wallet_value_xrd)
+                return True
+        return super().eventFilter(obj, event)
+    
     def cleanup(self):
         """Clean up resources"""
         # Stop the refresh timer
@@ -163,7 +184,9 @@ class DashboardTabMain(QWidget):
             dashboard_data = self.data_service.get_dashboard_data()
             
             # Update summary widgets
-            self.findChild(QLabel, "summary_wallet_value").setText(dashboard_data["wallet_value"])
+            self._wallet_value_xrd = dashboard_data["wallet_value"]
+            self._wallet_value_usd = dashboard_data.get("wallet_value_usd", "$0.00 USD")
+            self.findChild(QLabel, "summary_wallet_value").setText(self._wallet_value_xrd)
             self.findChild(QLabel, "summary_profit").setText(dashboard_data["profit"])
             self.findChild(QLabel, "summary_active_trades").setText(str(dashboard_data["active_trades"]))
             self.findChild(QLabel, "summary_win_ratio").setText(dashboard_data["win_ratio"])
